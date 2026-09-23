@@ -13,6 +13,7 @@
 
 class PHCompositeNode;
 class TTree;
+class CentralityInfo; 
 
 class KFParticle_nTuple : public KFParticle_truthAndDetTools, public KFParticle_triggerInfo
 {
@@ -98,7 +99,9 @@ class KFParticle_nTuple : public KFParticle_truthAndDetTools, public KFParticle_
   // std::string m_vtx_map_node_name_nTuple;
   bool m_use_intermediate_name{false};
   bool m_get_charge_conjugate_nTuple{false};
-  bool m_use_fake_pv_nTuple{false};
+  bool m_use_fake_pv_nTuple{false}; 
+  bool m_use_centrality{false};
+
   std::vector<std::string> m_intermediate_name_ntuple;
 
  private:
@@ -214,8 +217,7 @@ class KFParticle_nTuple : public KFParticle_truthAndDetTools, public KFParticle_
   float m_calculated_daughter_dedx[max_tracks]{0};
   // float m_calculated_daughter_expected_dedx_pion[max_tracks] {0};
   // float m_calculated_daughter_expected_dedx_kaon[max_tracks] {0};
-  // float m_calculated_daughter_expected_dedx_proton[max_tracks] {0};
-
+  // float m_calculated_daughter_expected_dedx_proton[max_tracks] {0}; 
   float m_daughter_dca[99]{0};
   float m_daughter_dca_xy[99]{0};
   float m_daughter_dca_sig[99]{0};
@@ -230,6 +232,7 @@ class KFParticle_nTuple : public KFParticle_truthAndDetTools, public KFParticle_
   int m_calculated_vertex_ID{-1};
   // float *m_calculated_vertex_cov;
   float m_calculated_vertex_cov[6]{0};
+  float centrality_mbd{-1};
 
   float m_sv_mass{-1};
 
@@ -238,6 +241,8 @@ class KFParticle_nTuple : public KFParticle_truthAndDetTools, public KFParticle_
   int m_ncharged_siseed_multiplicity{-1};
   int m_nTracksOfVertex{-1};
 
+  CentralityInfo *m_CentInfo{nullptr};
+  
   int m_runNumber{-1};
   int m_evtNumber{-1};
   int64_t m_bco{-1};

@@ -10,6 +10,8 @@
 #include <trackbase_historic/SvtxTrack.h>
 #include <trackbase_historic/SvtxTrackMap.h>
 
+#include <centrality/CentralityInfo.h>
+
 #include <KFParticle.h>
 #include <KFVertex.h>
 
@@ -242,7 +244,6 @@ void KFParticle_nTuple::initializeBranches(PHCompositeNode* topNode)
     // m_tree->Branch(TString(daughter_number) + "_expected_pion_dEdx", &m_calculated_daughter_expected_dedx_pion[i], TString(daughter_number) + "_expected_pion_dEdx/F");
     // m_tree->Branch(TString(daughter_number) + "_expected_kaon_dEdx", &m_calculated_daughter_expected_dedx_kaon[i], TString(daughter_number) + "_expected_kaon_dEdx/F");
     // m_tree->Branch(TString(daughter_number) + "_expected_proton_dEdx", &m_calculated_daughter_expected_dedx_proton[i], TString(daughter_number) + "_expected_proton_dEdx/F");
-
     if (m_calo_info)
     {
       initializeCaloBranches(m_tree, i, daughter_number);
@@ -297,6 +298,12 @@ void KFParticle_nTuple::initializeBranches(PHCompositeNode* topNode)
     // m_tree->Branch( "primary_vertex_Covariance",   m_calculated_vertex_cov, "primary_vertex_Covariance[6]/F", 6 );
     m_tree->Branch("primary_vertex_Covariance", &m_calculated_vertex_cov, "primary_vertex_Covariance[6]/F", 6);
   }
+
+  if(m_use_centrality)
+  {
+    m_tree->Branch("centrality_mbd", &centrality_mbd);
+  }
+
   if (m_get_all_PVs)
   {
     m_tree->Branch("all_primary_vertex_x", &allPV_x);
@@ -673,6 +680,33 @@ void KFParticle_nTuple::fillBranch(PHCompositeNode* topNode,
   {
     m_nTracksOfVertex = 0;
   }
+
+  if(m_use_centrality)
+  {
+    m_CentInfo = findNode::getClass<CentralityInfo>(topNode, "CentralityInfo");
+     
+    if (!m_CentInfo)
+    {
+        std::cout << "SiliconSeedAnalyzer::process_event - [WARNING] - can't find CentralityInfo node " << "CentralityInfo" << std::endl;
+        centrality_mbd = -1.;
+        // return Fun4AllReturnCodes::EVENT_OK;
+    }
+    else
+    {
+        if (m_CentInfo->has_centrality_bin(CentralityInfo::PROP::mbd_NS))
+        {
+            centrality_mbd = m_CentInfo->get_centrality_bin(CentralityInfo::PROP::mbd_NS);
+        }
+        else
+        {
+            std::cout << "[WARNING/ERROR] No centrality information found in CentralityInfo. Setting centrality_mbd_ to -2. Please check!" << std::endl;
+            m_CentInfo->identify();
+            centrality_mbd = -2.;
+        }
+    }
+  }
+
+
 
   PHNodeIterator nodeIter(topNode);
 
