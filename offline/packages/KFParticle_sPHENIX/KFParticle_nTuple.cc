@@ -10,10 +10,10 @@
 #include <trackbase_historic/SvtxTrack.h>
 #include <trackbase_historic/SvtxTrackMap.h>
 
-#include <centrality/CentralityInfo.h>
-
 #include <KFParticle.h>
 #include <KFVertex.h>
+
+#include <centrality/CentralityInfo.h>
 
 #include <Rtypes.h>
 #include <TString.h>  // for TString, operator+
@@ -683,13 +683,13 @@ void KFParticle_nTuple::fillBranch(PHCompositeNode* topNode,
 
   if(m_use_centrality)
   {
-    m_CentInfo = findNode::getClass<CentralityInfo>(topNode, "CentralityInfo");
+    CentralityInfo *m_CentInfo = nullptr;
+    m_CentInfo =  findNode::getClass<CentralityInfo>(topNode, "CentralityInfo");
      
     if (!m_CentInfo)
     {
-        std::cout << "SiliconSeedAnalyzer::process_event - [WARNING] - can't find CentralityInfo node " << "CentralityInfo" << std::endl;
+        std::cout << "KFparticle - [WARNING] - can't find CentralityInfo node " << "CentralityInfo" << std::endl;
         centrality_mbd = -1.;
-        // return Fun4AllReturnCodes::EVENT_OK;
     }
     else
     {

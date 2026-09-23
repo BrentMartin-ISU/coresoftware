@@ -13,7 +13,6 @@
 
 class PHCompositeNode;
 class TTree;
-class CentralityInfo; 
 
 class KFParticle_nTuple : public KFParticle_truthAndDetTools, public KFParticle_triggerInfo
 {
@@ -241,8 +240,6 @@ class KFParticle_nTuple : public KFParticle_truthAndDetTools, public KFParticle_
   int m_ncharged_siseed_multiplicity{-1};
   int m_nTracksOfVertex{-1};
 
-  CentralityInfo *m_CentInfo{nullptr};
-  
   int m_runNumber{-1};
   int m_evtNumber{-1};
   int64_t m_bco{-1};
