@@ -16,8 +16,6 @@
 #include <memory>   // for allocator_traits<>::value_type
 #include <utility>  // for pair
 
-KFParticle_Tools kfpTools;
-
 std::tuple<TMVA::Reader *, std::vector<Float_t>> KFParticle_MVA::initMVA()
 {
   TMVA::Tools::Instance();  // Start TMVA
@@ -41,7 +39,7 @@ Float_t KFParticle_MVA::evaluateMVA(TMVA::Reader *reader, std::vector<Float_t> r
   std::map<std::string, float> possibleVariables =
       {
           {"motherIPchi2", particle.GetDeviationFromVertex(kfpvertex)},
-          {"motherFDchi2", kfpTools.flightDistanceChi2(particle, vertex)}};
+          {"motherFDchi2", m_tools_MVA->flightDistanceChi2(particle, vertex)}};
 
   for (unsigned int iPar = 0; iPar < nMVApars; ++iPar)
   {

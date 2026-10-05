@@ -72,8 +72,7 @@ KFParticle_sPHENIX::KFParticle_sPHENIX()
   , m_outfile_name("outputData.root")
   , m_outfile(nullptr)
 {
-  m_tools_nTuple = this;
-  m_tools_DST = this;
+  initializeTools();
 }
 
 KFParticle_sPHENIX::KFParticle_sPHENIX(const std::string &name)
@@ -86,8 +85,15 @@ KFParticle_sPHENIX::KFParticle_sPHENIX(const std::string &name)
   , m_outfile_name("outputData.root")
   , m_outfile(nullptr)
 {
-  m_tools_nTuple = this;
+  initializeTools();
+}
+
+void KFParticle_sPHENIX::initializeTools()
+{
+   m_tools_nTuple = this;
   m_tools_DST = this;
+  m_tools_MVA = this;
+}
 }
 
 int KFParticle_sPHENIX::Init(PHCompositeNode *topNode)

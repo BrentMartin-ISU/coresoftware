@@ -15,6 +15,7 @@
 
 class KFParticle;
 class KFPVertex;
+class KFParticle_Tools;
 
 namespace TMVA
 {
@@ -37,6 +38,7 @@ class KFParticle_MVA
   std::vector<std::string> m_mva_variable_list;
   std::string m_mva_type;
   std::string m_mva_path;
+  KFParticle_Tools *m_tools_MVA = nullptr;
 
  private:
   unsigned int nMVApars = m_nPars;  // sizeof(m_mva_variable_list)/sizeof(m_mva_variable_list[0]);
