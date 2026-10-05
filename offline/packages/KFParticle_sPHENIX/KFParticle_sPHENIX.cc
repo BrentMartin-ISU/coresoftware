@@ -94,7 +94,6 @@ void KFParticle_sPHENIX::initializeTools()
   m_tools_DST = this;
   m_tools_MVA = this;
 }
-}
 
 int KFParticle_sPHENIX::Init(PHCompositeNode *topNode)
 {

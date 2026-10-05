@@ -36,8 +36,6 @@
 #include <map>       // for map, map<>::mapped_type
 #include <utility>   // for pair
 
-KFParticle_truthAndDetTools kfpTruthTools_DST;
-
 int KFParticle_DST::createParticleNode(PHCompositeNode* topNode)
 {
   PHNodeIterator iter(topNode);

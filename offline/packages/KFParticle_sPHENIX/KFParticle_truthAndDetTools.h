@@ -39,6 +39,7 @@ class TTree;
 class KFParticle;
 class GlobalVertex;
 class GlobalVertexMap;
+class KFParticle_Tools;
 
 namespace HepMC
 {
@@ -116,6 +117,8 @@ class KFParticle_truthAndDetTools
 
   std::string m_trk_map_node_name_nTuple{"SvtxTrackMap"};
   std::string m_vtx_map_node_name_nTuple{"SvtxVertexMap"};
+
+  KFParticle_Tools *m_tools_nTuple{nullptr};
 
   SvtxEvalStack *m_svtx_evalstack{nullptr};
   SvtxClusterEval *clustereval{nullptr};
