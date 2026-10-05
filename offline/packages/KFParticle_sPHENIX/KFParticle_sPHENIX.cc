@@ -73,6 +73,7 @@ KFParticle_sPHENIX::KFParticle_sPHENIX()
   , m_outfile(nullptr)
 {
   m_tools_nTuple = this;
+  m_tools_DST = this;
 }
 
 KFParticle_sPHENIX::KFParticle_sPHENIX(const std::string &name)
@@ -86,6 +87,7 @@ KFParticle_sPHENIX::KFParticle_sPHENIX(const std::string &name)
   , m_outfile(nullptr)
 {
   m_tools_nTuple = this;
+  m_tools_DST = this;
 }
 
 int KFParticle_sPHENIX::Init(PHCompositeNode *topNode)

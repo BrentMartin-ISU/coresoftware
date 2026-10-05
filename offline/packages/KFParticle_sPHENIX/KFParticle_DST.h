@@ -10,6 +10,7 @@ class KFParticle_Container;
 class PHCompositeNode;
 class SvtxTrack;
 class SvtxTrackMap;
+class KFParticle_Tools;
 
 class KFParticle_DST
 {
@@ -49,6 +50,7 @@ class KFParticle_DST
   bool m_write_particle_container = true;
   std::string m_container_name;
   std::string m_origin_track_map_node_name = "SvtxTrackMap";
+  KFParticle_Tools* m_tools_DST = nullptr;
 
  private:
   SvtxTrackMap* m_recoTrackMap = nullptr;

@@ -36,7 +36,6 @@
 #include <map>       // for map, map<>::mapped_type
 #include <utility>   // for pair
 
-KFParticle_Tools kfpTupleTools_DST;
 KFParticle_truthAndDetTools kfpTruthTools_DST;
 
 int KFParticle_DST::createParticleNode(PHCompositeNode* topNode)
@@ -414,7 +413,7 @@ void KFParticle_DST::printNode(PHCompositeNode* topNode)
     for (auto& iter : *particlemap)
     {
       KFParticle* particle = iter.second;
-      kfpTupleTools_DST.identify(*particle);
+      m_tools_DST->identify(*particle);
     }
     std::cout << "--------------------------------------------------------------------------------------------------" << std::endl;
   }
