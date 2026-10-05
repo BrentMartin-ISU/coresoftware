@@ -434,8 +434,17 @@ int KFParticle_Tools::getTracksFromVertex(PHCompositeNode *topNode, const KFPart
       return 0;
     }
     auto *associated_gvertex = m_dst_globalvertexmap->get(vertex.Id());
-
+    if (!associated_gvertex)
+    {
+      std::cout << "Can't find associated global vertex in KFParticle_Tools::makeAllPrimaryVertices" << std::endl;
+      return 0;
+    }
     auto svtxiter = associated_gvertex->find_vertexes(GlobalVertex::SVTX);
+    if (svtxiter == associated_gvertex->end_vertexes())
+    {
+      std::cout << "Can't find associated svtx vertex in KFParticle_Tools::makeAllPrimaryVertices" << std::endl;
+      return 0;
+    }
     auto svtxvertexvector = svtxiter->second;
 
     for (auto &gvertex : svtxvertexvector)
