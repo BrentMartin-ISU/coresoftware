@@ -90,7 +90,7 @@ KFParticle_sPHENIX::KFParticle_sPHENIX(const std::string &name)
 
 void KFParticle_sPHENIX::initializeTools()
 {
-   m_tools_nTuple = this;
+  m_tools_truth = this;
   m_tools_DST = this;
   m_tools_MVA = this;
 }
@@ -98,6 +98,7 @@ void KFParticle_sPHENIX::initializeTools()
 int KFParticle_sPHENIX::Init(PHCompositeNode *topNode)
 {
   m_verbosity = Verbosity();
+  m_verbosity_nTuple = Verbosity();
   
   if (m_save_output && Verbosity() >= VERBOSITY_SOME)
   {

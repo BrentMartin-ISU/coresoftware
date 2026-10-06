@@ -1629,7 +1629,7 @@ void KFParticle_truthAndDetTools::allPVInfo(PHCompositeNode *topNode,
                                             std::vector<KFParticle> daughters,
                                             std::vector<KFParticle> intermediates)
 {
-  std::vector<KFParticle> primaryVertices = m_tools_nTuple->makeAllPrimaryVertices(topNode, m_vtx_map_node_name_nTuple);
+  std::vector<KFParticle> primaryVertices = m_tools_truth->makeAllPrimaryVertices(topNode, m_vtx_map_node_name_nTuple);
 
   for (auto &primaryVertice : primaryVertices)
   {

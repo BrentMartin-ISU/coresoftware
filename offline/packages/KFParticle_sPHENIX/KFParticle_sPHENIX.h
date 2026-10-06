@@ -445,6 +445,10 @@ class KFParticle_sPHENIX : public SubsysReco, public KFParticle_nTuple, public K
   std::string m_magField = "FIELDMAP_TRACKING";
 
   void initializeTools();
+
+  //Prevents copying of this class becease of incorect pointer assignment for KFParticle_Tools
+  KFParticle_sPHENIX(KFParticle_sPHENIX const &) = delete;
+  KFParticle_sPHENIX &operator=(KFParticle_sPHENIX const &x) = delete;
 };
 
 #endif  // KFPARTICLESPHENIX_KFPARTICLESPHENIX_H
