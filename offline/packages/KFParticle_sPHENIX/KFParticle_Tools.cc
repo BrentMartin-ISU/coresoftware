@@ -502,7 +502,6 @@ int KFParticle_Tools::getTracksFromVertex(PHCompositeNode *topNode, const KFPart
   {
     goodTrack = true;
   }
-
   
   if (m_verbosity >= 10)
   {
@@ -1324,7 +1323,7 @@ void KFParticle_Tools::constrainToVertex(KFParticle &particle, bool &goodCandida
 
   float calculated_fdchi2 = flightDistanceChi2(particle, vertex);
 
-  float calculated_PV_dca_xy = abs(particle.GetDistanceFromVertexXY(vertex));
+  float calculated_PV_dca_xy = std::abs(particle.GetDistanceFromVertexXY(vertex));
   float calculated_PV_dca_stddev_xy = particle.GetDeviationFromVertexXY(vertex);
   float calculated_dira_xy = eventDIRA(particle, vertex, false);
   float calculated_PV_dca = particle.GetDistanceFromVertex(vertex);
