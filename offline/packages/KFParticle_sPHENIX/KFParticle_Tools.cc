@@ -566,8 +566,8 @@ int KFParticle_Tools::calcMinPV_DCA(const KFParticle &track, const std::vector<K
     }
     else
     {
-      ip.push_back(abs(track.GetDistanceFromVertexXY(PV)));
-      thisPV_DCA_stddev = track.GetDeviationFromVertexXY(PV);
+      ip.push_back(std::abs(track.GetDistanceFromVertexXY(PV)));
+      thisPV_DCA_stddev = std::abs(track.GetDeviationFromVertexXY(PV));
     }
 
     thisPV_DCA_stddev = std::max(thisPV_DCA_stddev, 0.F);
@@ -1324,7 +1324,7 @@ void KFParticle_Tools::constrainToVertex(KFParticle &particle, bool &goodCandida
   float calculated_fdchi2 = flightDistanceChi2(particle, vertex);
 
   float calculated_PV_dca_xy = std::abs(particle.GetDistanceFromVertexXY(vertex));
-  float calculated_PV_dca_stddev_xy = particle.GetDeviationFromVertexXY(vertex);
+  float calculated_PV_dca_stddev_xy = std::abs(particle.GetDeviationFromVertexXY(vertex));
   float calculated_dira_xy = eventDIRA(particle, vertex, false);
   float calculated_PV_dca = particle.GetDistanceFromVertex(vertex);
   float calculated_PV_dca_stddev = particle.GetDeviationFromVertex(vertex);
@@ -1397,7 +1397,7 @@ std::vector<std::vector<int>> KFParticle_Tools::findUniqueDaughterCombinations(i
   std::map<int, int> daughterMap;
   for (int i = start; i < end; i++)
   {
-    daughterMap.insert(std::pair<int, int>(i, abs(getParticleID(m_daughter_name[i]))));
+    daughterMap.insert(std::pair<int, int>(i, std::abs(getParticleID(m_daughter_name[i]))));
     vect_permutations.push_back(i);
   }
   int *permutations = vect_permutations.data();
