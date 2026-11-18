@@ -563,15 +563,15 @@ int KFParticle_Tools::calcMinPV_DCA(const KFParticle &track, const std::vector<K
     {
       ip.push_back(track.GetDistanceFromVertex(PV));
       thisPV_DCA_stddev = track.GetDeviationFromVertex(PV);
+      thisPV_DCA_stddev = std::max(thisPV_DCA_stddev, 0.F); // Sometimes the DCA calculation goes negative
     }
     else
     {
       ip.push_back(std::abs(track.GetDistanceFromVertexXY(PV)));
       thisPV_DCA_stddev = std::abs(track.GetDeviationFromVertexXY(PV));
     }
-
-    thisPV_DCA_stddev = std::max(thisPV_DCA_stddev, 0.F);
-    ip_significance.push_back(thisPV_DCA_stddev);  // Τhere are times where the PV_DCA_stddev calc fails
+    
+    ip_significance.push_back(thisPV_DCA_stddev);
   }
 
   if (ip.empty()) //Need to account for instances where the track has no associated primary vertex in its crossing. Track should always be rejected
@@ -1334,16 +1334,24 @@ void KFParticle_Tools::constrainToVertex(KFParticle &particle, bool &goodCandida
   float calculated_decay_length_significance = calculated_decayLength / calculated_decayLengthErr;
   float calculated_decay_length_xy_significance = calculated_decayLength_xy / calculated_decayLengthErr_xy;
 
-  goodCandidate = false;
-
   const float speed = 2.99792458e-2;
   calculated_decayTime /= speed;
   calculated_decayTime_xy /= speed;  // The pseudo-proper decay time is returned as a length (c*tau), convert it to a time like the 3D one
 
-  if (calculated_fdchi2 >= m_fdchi2 && calculated_PV_dca <= m_mother_PV_dca && calculated_PV_dca_stddev <= m_mother_PV_dca_stddev && calculated_PV_dca_xy <= m_mother_PV_dca_xy && calculated_PV_dca_stddev_xy <= m_mother_PV_dca_stddev_xy && calculated_decay_time_significance >= m_mother_min_decay_time_significance && calculated_decay_length_significance >= m_mother_min_decay_length_significance && calculated_decay_length_xy_significance >= m_mother_min_decay_length_xy_significance && isInRange(m_dira_min, calculated_dira, m_dira_max) && isInRange(m_dira_xy_min, calculated_dira_xy, m_dira_xy_max) && isInRange(m_min_decayTime, calculated_decayTime, m_max_decayTime) && isInRange(m_min_decayTime_xy, calculated_decayTime_xy, m_max_decayTime_xy) && isInRange(m_min_decayLength, calculated_decayLength, m_max_decayLength) && isInRange(m_min_decayLength_xy, calculated_decayLength_xy, m_max_decayLength_xy))
-  {
-    goodCandidate = true;
-  }
+  goodCandidate = calculated_fdchi2 >= m_fdchi2 &&
+                  calculated_PV_dca <= m_mother_PV_dca &&
+                  calculated_PV_dca_stddev <= m_mother_PV_dca_stddev &&
+                  calculated_PV_dca_xy <= m_mother_PV_dca_xy &&
+                  calculated_PV_dca_stddev_xy <= m_mother_PV_dca_stddev_xy &&
+                  calculated_decay_time_significance >= m_mother_min_decay_time_significance &&
+                  calculated_decay_length_significance >= m_mother_min_decay_length_significance &&
+                  calculated_decay_length_xy_significance >= m_mother_min_decay_length_xy_significance &&
+                  isInRange(m_dira_min, calculated_dira, m_dira_max) &&
+                  isInRange(m_dira_xy_min, calculated_dira_xy, m_dira_xy_max) &&
+                  isInRange(m_min_decayTime, calculated_decayTime, m_max_decayTime) &&
+                  isInRange(m_min_decayTime_xy, calculated_decayTime_xy, m_max_decayTime_xy) &&
+                  isInRange(m_min_decayLength, calculated_decayLength, m_max_decayLength) &&
+                  isInRange(m_min_decayLength_xy, calculated_decayLength_xy, m_max_decayLength_xy);
 
   if (m_verbosity >= 10)
   {
