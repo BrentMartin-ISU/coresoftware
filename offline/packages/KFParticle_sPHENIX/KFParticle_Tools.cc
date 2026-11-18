@@ -653,14 +653,11 @@ std::vector<std::vector<int>> KFParticle_Tools::findTwoProngs(const std::vector<
           crossings.clear();
           crossings.insert(crossings.end(), particleCrossings[*i_it].begin(), particleCrossings[*i_it].end());
           crossings.insert(crossings.end(), particleCrossings[*j_it].begin(), particleCrossings[*j_it].end());
-          
+
           removeDuplicates(crossings);
-          
-          if (m_require_bunch_crossing_match && crossings.size() !=1)
-          {
-            continue;
-          }
-          if (m_force_mixed_event &&  crossings.size() == 1)
+
+          const bool sameCrossing = crossings.size() == 1;
+          if ((m_require_bunch_crossing_match && !sameCrossing) || (m_force_mixed_event && sameCrossing))
           {
             continue;
           }
