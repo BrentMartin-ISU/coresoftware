@@ -687,12 +687,7 @@ std::vector<std::vector<int>> KFParticle_Tools::findTwoProngs(const std::vector<
           //Now check if tracks are good as we need full reco to make DCA calc make sense
           if (nTracks == 2)
           {
-            if (vertexchi2ndof > m_vertex_chi2ndof)
-            {
-              continue;
-            }
-
-            if (sv_radial_position < m_min_radial_SV)
+            if (vertexchi2ndof > m_vertex_chi2ndof || sv_radial_position < m_min_radial_SV)
             {
               continue;
             }
@@ -835,12 +830,7 @@ std::vector<std::vector<int>> KFParticle_Tools::findNProngs(const std::vector<KF
 
           if ((unsigned int) nRequiredTracks == nProngs)
           {
-            if (vertexchi2ndof > m_vertex_chi2ndof)
-            {
-              continue;
-            }
-
-            if (sv_radial_position < m_min_radial_SV)
+            if (vertexchi2ndof > m_vertex_chi2ndof || sv_radial_position < m_min_radial_SV)
             {
               continue;
             }
