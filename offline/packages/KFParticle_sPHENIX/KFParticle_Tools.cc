@@ -479,8 +479,6 @@ int KFParticle_Tools::getTracksFromVertex(PHCompositeNode *topNode, const KFPart
 
 /*const*/ bool KFParticle_Tools::isGoodTrack(const KFParticle &particle, const std::vector<KFParticle> &primaryVertices)
 {
-  bool goodTrack = false;
-
   float min_PV_dca = 0;
   float min_PV_dca_stddev = 0;
   float min_PV_dca_xy = 0;
@@ -498,11 +496,13 @@ int KFParticle_Tools::getTracksFromVertex(PHCompositeNode *topNode, const KFPart
   calcMinPV_DCA(particle, primaryVertices, min_PV_dca, min_PV_dca_stddev);
   calcMinPV_DCA(particle, primaryVertices, min_PV_dca_xy, min_PV_dca_stddev_xy, false);
 
-  if (isInRange(m_track_min_pt, pt, m_track_max_pt) && ptchi2 <= m_track_ptchi2 && min_PV_dca >= m_track_PV_dca && min_PV_dca_stddev >= m_track_PV_dca_stddev && min_PV_dca_xy >= m_track_PV_dca_xy && min_PV_dca_stddev_xy >= m_track_PV_dca_stddev_xy)
-  {
-    goodTrack = true;
-  }
-  
+  bool goodTrack = isInRange(m_track_min_pt, pt, m_track_max_pt) &&
+                   ptchi2 <= m_track_ptchi2 &&
+                   min_PV_dca >= m_track_PV_dca &&
+                   min_PV_dca_stddev >= m_track_PV_dca_stddev &&
+                   min_PV_dca_xy >= m_track_PV_dca_xy &&
+                   min_PV_dca_stddev_xy >= m_track_PV_dca_stddev_xy;
+
   if (m_verbosity >= 10)
   {
     printSelectionCheck("This track", "passed", "failed", "the selection", goodTrack);
