@@ -159,18 +159,9 @@ KFParticle KFParticle_Tools::makeVertex(PHCompositeNode * /*topNode*/)
 
 std::vector<KFParticle> KFParticle_Tools::makeAllPrimaryVertices(PHCompositeNode *topNode, const std::string &vertexMapName)
 {
-  std::string vtxMN;
-
   unsigned int vertexID = 0;
 
-  if (vertexMapName.empty())
-  {
-    vtxMN = m_vtx_map_node_name;
-  }
-  else
-  {
-    vtxMN = vertexMapName;
-  }
+  const std::string &vtxMN = vertexMapName.empty() ? m_vtx_map_node_name : vertexMapName;
 
   std::vector<KFParticle> primaryVertices;
 
@@ -404,15 +395,7 @@ void KFParticle_Tools::getTracksFromBC(PHCompositeNode *topNode, const int &bunc
     return;
   }
 
-  std::string vtxMN;
-  if (vertexMapName.empty())
-  {
-    vtxMN = m_vtx_map_node_name;
-  }
-  else
-  {
-    vtxMN = vertexMapName;
-  }
+  const std::string &vtxMN = vertexMapName.empty() ? m_vtx_map_node_name : vertexMapName;
 
   nTracks = 0;
   nPVs = 0;
@@ -435,15 +418,7 @@ int KFParticle_Tools::getTracksFromVertex(PHCompositeNode *topNode, const KFPart
     return 0;
   }
 
-  std::string vtxMN;
-  if (vertexMapName.empty())
-  {
-    vtxMN = m_vtx_map_node_name;
-  }
-  else
-  {
-    vtxMN = vertexMapName;
-  }
+  const std::string &vtxMN = vertexMapName.empty() ? m_vtx_map_node_name : vertexMapName;
 
   SvtxVertex *associated_vertex = nullptr;
   if (m_dont_use_global_vertex)
