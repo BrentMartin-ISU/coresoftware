@@ -700,6 +700,7 @@ std::vector<std::vector<int>> KFParticle_Tools::findTwoProngs(const std::vector<
               if (!trackPassesCuts)
               {
                 rejectComboDueToTrack = true;
+                break;
               }
             }
 
@@ -843,6 +844,7 @@ std::vector<std::vector<int>> KFParticle_Tools::findNProngs(const std::vector<KF
               if (!trackPassesCuts)
               {
                 rejectComboDueToTrack = true;
+                break;
               }
             }
 
