@@ -1148,12 +1148,9 @@ std::tuple<KFParticle, bool> KFParticle_Tools::buildMother(KFParticle vDaughters
     {
       inputTracks[j].SetProductionVertex(mother);
     }
-    if (!m_allowZeroMassTracks)
+    if (!m_allowZeroMassTracks && inputTracks[j].GetMass() == 0)
     {
-      if (inputTracks[j].GetMass() == 0)
-      {
-        daughterMassCheck = false;
-      }
+      daughterMassCheck = false;
     }
   }
 
@@ -1170,13 +1167,11 @@ std::tuple<KFParticle, bool> KFParticle_Tools::buildMother(KFParticle vDaughters
 
   float max_vertex_volume = isIntermediate ? m_intermediate_vertex_volume[intermediateNumber] : m_mother_vertex_volume;
 
-  bool goodCandidate = false;
-
-  if (calculated_mass >= min_mass && calculated_mass <= max_mass &&
-      calculated_pt >= min_pt && daughterMassCheck && chargeCheck && calculateEllipsoidVolume(mother) <= max_vertex_volume)
-  {
-    goodCandidate = true;
-  }
+  bool goodCandidate = isInRange(min_mass, calculated_mass, max_mass) &&
+                       calculated_pt >= min_pt &&
+                       daughterMassCheck &&
+                       chargeCheck &&
+                       calculateEllipsoidVolume(mother) <= max_vertex_volume;
 
   std::vector<int> crossings;
   for (int i = 0; i < nTracks; ++i)
@@ -1188,19 +1183,15 @@ std::tuple<KFParticle, bool> KFParticle_Tools::buildMother(KFParticle vDaughters
 
   if (goodCandidate && (m_require_bunch_crossing_match || m_force_mixed_event))
   {
-    if (m_require_bunch_crossing_match && crossings.size() != 1)
-    {
-      goodCandidate = false;
-    }
-    if (m_force_mixed_event && crossings.size() == 1)
+    const bool sameCrossing = crossings.size() == 1;
+    if ((m_require_bunch_crossing_match && !sameCrossing) || (m_force_mixed_event && sameCrossing))
     {
       goodCandidate = false;
     }
 
     if (m_verbosity >= 11)
     {
-      bool accept = crossings.size() == 1;
-      printSelectionCheck("", "All tracks are from the same BC", "Tracks are from different BC", "", accept);
+      printSelectionCheck("", "All tracks are from the same BC", "Tracks are from different BC", "", sameCrossing);
     }
   }
 
@@ -1258,13 +1249,10 @@ std::tuple<KFParticle, bool> KFParticle_Tools::buildMother(KFParticle vDaughters
         const auto timeRange = rangeOf(m_intermediate_decayTime_range);
         const auto timeRange_xy = rangeOf(m_intermediate_decayTime_xy_range);
 
-        if (!isInRange(lengthRange.first, intermediate_decayLength, lengthRange.second) ||
-            !isInRange(lengthRange_xy.first, intermediate_decayLength_xy, lengthRange_xy.second) ||
-            !isInRange(timeRange.first, intermediate_decayTime, timeRange.second) ||
-            !isInRange(timeRange_xy.first, intermediate_decayTime_xy, timeRange_xy.second))
-        {
-          goodCandidate = false;
-        }
+        goodCandidate = isInRange(lengthRange.first, intermediate_decayLength, lengthRange.second) &&
+                        isInRange(lengthRange_xy.first, intermediate_decayLength_xy, lengthRange_xy.second) &&
+                        isInRange(timeRange.first, intermediate_decayTime, timeRange.second) &&
+                        isInRange(timeRange_xy.first, intermediate_decayTime_xy, timeRange_xy.second);
 
         if (m_verbosity >= 11)
         {
