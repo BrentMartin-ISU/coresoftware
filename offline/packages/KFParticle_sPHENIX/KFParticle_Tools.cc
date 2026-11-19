@@ -449,24 +449,37 @@ int KFParticle_Tools::getTracksFromVertex(PHCompositeNode *topNode, const KFPart
   if (m_dont_use_global_vertex)
   {
     m_dst_vertexmap = findNode::getClass<SvtxVertexMap>(topNode, vtxMN);
-    associated_vertex = m_dst_vertexmap->get(vertex.Id());
+    associated_vertex = m_dst_vertexmap ? m_dst_vertexmap->get(vertex.Id()) : nullptr;
   }
   else
   {
     m_dst_globalvertexmap = findNode::getClass<GlobalVertexMap>(topNode, "GlobalVertexMap");
-    if (!m_dst_globalvertexmap)
+    m_dst_vertexmap = findNode::getClass<SvtxVertexMap>(topNode, vtxMN);
+    if (!m_dst_globalvertexmap || !m_dst_vertexmap)
     {
-      std::cout << "Can't continue in KFParticle_Tools::makeAllPrimaryVertices" << std::endl;
+      std::cout << "Can't continue in KFParticle_Tools::getTracksFromVertex" << std::endl;
       return 0;
     }
     auto *associated_gvertex = m_dst_globalvertexmap->get(vertex.Id());
+    if (!associated_gvertex)
+    {
+      return 0;
+    }
 
     auto svtxiter = associated_gvertex->find_vertexes(GlobalVertex::SVTX);
+    if (svtxiter == associated_gvertex->end_vertexes())
+    {
+      return 0;
+    }
     auto svtxvertexvector = svtxiter->second;
 
     for (auto &gvertex : svtxvertexvector)
     {
-      associated_vertex = m_dst_vertexmap->find(gvertex->get_id())->second;
+      auto vtxiter = m_dst_vertexmap->find(gvertex->get_id());
+      if (vtxiter != m_dst_vertexmap->end())
+      {
+        associated_vertex = vtxiter->second;
+      }
     }
   }
   if (associated_vertex)
@@ -1782,6 +1795,10 @@ bool KFParticle_Tools::checkTrackAndVertexMatch(KFParticle vDaughters[], int nTr
     if (m_use_mbd_vertex)
     {
       m_dst_mbdvertex = m_dst_mbdvertexmap->get(vertex.Id());
+      if (!m_dst_mbdvertex)
+      {
+        return false;
+      }
       obtained_vertex[2] = m_dst_mbdvertex->get_z();
       if (vertexToleranceCheck(obtained_vertex, kfp_vertex))
       {
@@ -1791,6 +1808,10 @@ bool KFParticle_Tools::checkTrackAndVertexMatch(KFParticle vDaughters[], int nTr
     else
     {
       m_dst_vertex = m_dst_vertexmap->get(vertex.Id());
+      if (!m_dst_vertex)
+      {
+        return false;
+      }
       obtained_vertex[0] = m_dst_vertex->get_x();
       obtained_vertex[1] = m_dst_vertex->get_y();
       obtained_vertex[2] = m_dst_vertex->get_z();
@@ -1803,17 +1824,30 @@ bool KFParticle_Tools::checkTrackAndVertexMatch(KFParticle vDaughters[], int nTr
   else
   {
     m_dst_globalvertex = m_dst_globalvertexmap->get(vertex.Id());
+    if (!m_dst_globalvertex)
+    {
+      return false;
+    }
 
     GlobalVertex::VTXTYPE whichVtx = m_use_mbd_vertex ? GlobalVertex::MBD : GlobalVertex::SVTX;
 
     auto svtxiter = m_dst_globalvertex->find_vertexes(whichVtx);
+    if (svtxiter == m_dst_globalvertex->end_vertexes())
+    {
+      return false;
+    }
     auto svtxvertexvector = svtxiter->second;
 
     for (auto &gvertex : svtxvertexvector)
     {
       if (m_use_mbd_vertex)
       {
-        m_dst_mbdvertex = m_dst_mbdvertexmap->find(gvertex->get_id())->second;
+        auto mbditer = m_dst_mbdvertexmap->find(gvertex->get_id());
+        if (mbditer == m_dst_mbdvertexmap->end())
+        {
+          continue;
+        }
+        m_dst_mbdvertex = mbditer->second;
         obtained_vertex[2] = m_dst_mbdvertex->get_z();
         if (vertexToleranceCheck(obtained_vertex, kfp_vertex))
         {
@@ -1822,7 +1856,12 @@ bool KFParticle_Tools::checkTrackAndVertexMatch(KFParticle vDaughters[], int nTr
       }
       else
       {
-        m_dst_vertex = m_dst_vertexmap->find(gvertex->get_id())->second;
+        auto vtxiter = m_dst_vertexmap->find(gvertex->get_id());
+        if (vtxiter == m_dst_vertexmap->end())
+        {
+          continue;
+        }
+        m_dst_vertex = vtxiter->second;
         obtained_vertex[0] = m_dst_vertex->get_x();
         obtained_vertex[1] = m_dst_vertex->get_y();
         obtained_vertex[2] = m_dst_vertex->get_z();
