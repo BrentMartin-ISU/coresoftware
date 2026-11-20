@@ -384,24 +384,6 @@ class KFParticle_sPHENIX : public SubsysReco, public KFParticle_nTuple, public K
 
   void use2Dmatching(bool use_2D_matching_tools = true) { m_use_2D_matching_tools = use_2D_matching_tools; }
 
-  //DEPRECATED: MVA is not used in the current implementation of KFParticle; this setting has no effect
-  void useMVA(bool /*require_mva*/ = true) { std::cout << "MVA is deprecated and will be removed in future versions." << std::endl; }
-
-  //DEPRECATED: MVA is not used in the current implementation of KFParticle; this setting has no effect
-  void setNumMVAPars(unsigned int /*nPars*/) { std::cout << "MVA is deprecated and will be removed in future versions." << std::endl; }
-
-  //DEPRECATED: MVA is not used in the current implementation of KFParticle; this setting has no effect
-  void setMVAVarList(const std::vector<std::string> & /*mva_variable_list*/) { std::cout << "MVA is deprecated and will be removed in future versions." << std::endl; }
-
-  //DEPRECATED: MVA is not used in the current implementation of KFParticle; this setting has no effect
-  void setMVAType(const std::string & /*mva_type*/) { std::cout << "MVA is deprecated and will be removed in future versions." << std::endl; }
-
-  //DEPRECATED: MVA is not used in the current implementation of KFParticle; this setting has no effect
-  void setMVAWeightsPath(const std::string & /*mva_weights_path*/) { std::cout << "MVA is deprecated and will be removed in future versions." << std::endl; }
-
-  //DEPRECATED: MVA is not used in the current implementation of KFParticle; this setting has no effect
-  void setMVACutValue(float /*cut_value*/) { std::cout << "MVA is deprecated and will be removed in future versions." << std::endl; }
-
   void saveDST(bool save = true) { m_config.saveDST = save; }
 
   void saveTrackContainer(bool save = true) { m_config.writeTrackContainer = save; }
@@ -478,7 +460,6 @@ class KFParticle_sPHENIX : public SubsysReco, public KFParticle_nTuple, public K
   KFParticle_Config m_config;  // the only writable configuration; base classes hold a const reference to it
   bool m_has_intermediates_sPHENIX;
   bool m_constrain_to_vertex_sPHENIX;
-  bool m_require_mva;
   bool m_save_output;
   int candidateCounter = 0;
   //Adding member variables for BCO matching

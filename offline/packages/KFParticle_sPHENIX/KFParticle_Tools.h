@@ -22,8 +22,6 @@
 #ifndef KFPARTICLESPHENIX_KFPARTICLETOOLS_H
 #define KFPARTICLESPHENIX_KFPARTICLETOOLS_H
 
-#include "KFParticle_MVA.h"
-
 #include <globalvertex/MbdVertex.h>
 #include <globalvertex/MbdVertexMap.h>
 #include <trackbase_historic/TrackSeed.h>
@@ -54,12 +52,12 @@ class GlobalVertex;
 class TrkrClusterContainer;
 class PHG4TpcGeomContainer;
 
-class KFParticle_Tools : protected KFParticle_MVA
+class KFParticle_Tools
 {
  public:
   KFParticle_Tools();
 
-  ~KFParticle_Tools() override = default;
+  virtual ~KFParticle_Tools() = default;
 
   KFParticle makeVertex(PHCompositeNode *topNode);
 
@@ -273,8 +271,6 @@ class KFParticle_Tools : protected KFParticle_MVA
   float m_mother_PV_dca_stddev_xy{std::numeric_limits<float>::max()};
 
   float m_mother_vertex_volume{std::numeric_limits<float>::max()};
-
-  float m_mva_cut_value{-1};
 
   bool m_get_charge_conjugate{false};
 

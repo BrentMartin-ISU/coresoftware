@@ -24,7 +24,6 @@ pkginclude_HEADERS = \
   KFParticle_triggerInfo.h \
   KFParticle_nTuple.h \
   KFParticle_Tools.h \
-  KFParticle_MVA.h \
   KFParticle_eventReconstruction.h \
   KFParticle_sPHENIX.h
 
@@ -45,7 +44,6 @@ libkfparticle_sphenix_la_SOURCES = \
   KFParticle_triggerInfo.cc \
   KFParticle_nTuple.cc \
   KFParticle_Tools.cc \
-  KFParticle_MVA.cc \
   KFParticle_eventReconstruction.cc \
   KFParticle_sPHENIX.cc
 
@@ -60,7 +58,6 @@ libkfparticle_sphenix_la_LIBADD = \
   -lCLHEP \
   -lfun4all \
   -lg4eval \
-  -lTMVA \
   -lphhepmc \
   -lcalotrigger \
   -lffarawobjects \

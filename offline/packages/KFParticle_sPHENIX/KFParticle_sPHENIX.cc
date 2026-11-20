@@ -50,14 +50,8 @@
 #include <filesystem>
 #include <iostream>  // for operator<<, endl, basi...
 #include <map>       // for map
-#include <tuple>     // for tie, tuple
 
 class PHCompositeNode;
-
-namespace TMVA
-{
-  class Reader;
-}
 
 //int candidateCounter = 0;
 
@@ -69,7 +63,6 @@ KFParticle_sPHENIX::KFParticle_sPHENIX(const std::string &name)
   , KFParticle_DST(m_config)  // binds only; m_config is constructed before any of it is read
   , m_has_intermediates_sPHENIX(false)
   , m_constrain_to_vertex_sPHENIX(false)
-  , m_require_mva(false)
   , m_save_output(true)
   , m_outfile_name("outputData.root")
   , m_outfile(nullptr)
@@ -93,14 +86,6 @@ int KFParticle_sPHENIX::Init(PHCompositeNode *topNode)
     createParticleNode(topNode);
   }
 
-/* DEPRECATED: Code is initialized to be completely discarded
-  if (m_require_mva)
-  {
-    TMVA::Reader *reader;
-    std::vector<Float_t> MVA_parValues;
-    tie(reader, MVA_parValues) = initMVA();
-  }
-*/
   int returnCode = 0;
   if (!m_decayDescriptor.empty())
   {
