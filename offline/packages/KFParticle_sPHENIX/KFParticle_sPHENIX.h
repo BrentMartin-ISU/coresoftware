@@ -402,13 +402,13 @@ class KFParticle_sPHENIX : public SubsysReco, public KFParticle_nTuple, public K
   //DEPRECATED: MVA is not used in the current implementation of KFParticle; this setting has no effect
   void setMVACutValue(float /*cut_value*/) { std::cout << "MVA is deprecated and will be removed in future versions." << std::endl; }
 
-  void saveDST(bool save = true) { m_save_dst = save; }
+  void saveDST(bool save = true) { m_config.saveDST = save; }
 
-  void saveTrackContainer(bool save = true) { m_write_track_container = save; }
+  void saveTrackContainer(bool save = true) { m_config.writeTrackContainer = save; }
 
-  void saveParticleContainer(bool save = true) { m_write_particle_container = save; }
+  void saveParticleContainer(bool save = true) { m_config.writeParticleContainer = save; }
 
-  void setContainerName(const std::string &name) { m_container_name = name; }
+  void setContainerName(const std::string &name) { m_config.containerName = name; }
 
   void saveOutput(bool save = true) { m_save_output = save; }
 
@@ -464,7 +464,7 @@ class KFParticle_sPHENIX : public SubsysReco, public KFParticle_nTuple, public K
   void setVertexMapNodeName(const std::string &vtx_map_node_name) { m_vtx_map_node_name = vtx_map_node_name; }
 
   /// Use alternate vertex and track fitters
-  void setTrackMapNodeName(const std::string &trk_map_node_name) { m_trk_map_node_name = m_origin_track_map_node_name = trk_map_node_name; }
+  void setTrackMapNodeName(const std::string &trk_map_node_name) { m_trk_map_node_name = m_config.originTrackMapNodeName = trk_map_node_name; }
 
   void magFieldFile(const std::string &fname) { m_magField = fname; }
 
@@ -475,10 +475,10 @@ class KFParticle_sPHENIX : public SubsysReco, public KFParticle_nTuple, public K
   int getCandidateCounter() const { return candidateCounter; }
 
  private:
+  KFParticle_Config m_config;  // the only writable configuration; base classes hold a const reference to it
   bool m_has_intermediates_sPHENIX;
   bool m_constrain_to_vertex_sPHENIX;
   bool m_require_mva;
-  bool m_save_dst;
   bool m_save_output;
   int candidateCounter = 0;
   //Adding member variables for BCO matching

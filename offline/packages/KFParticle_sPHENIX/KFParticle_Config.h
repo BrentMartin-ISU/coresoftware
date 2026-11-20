@@ -3,24 +3,17 @@
 
 #include <string>
 
-class KFParticle_sPHENIX;
-
-// Configuration for KFParticle: set by KFParticle_sPHENIX (the module), read-only everywhere else
-class KFParticle_Config
+// Configuration for KFParticle, as plain read-only data.
+// KFParticle_sPHENIX owns the only writable instance (a private member, set through its setters).
+// Every other class holds a private const reference to it, so there the fields can be read but not written.
+struct KFParticle_Config
 {
- public:
-  bool writeTrackContainer() const { return m_write_track_container; }
-  bool writeParticleContainer() const { return m_write_particle_container; }
-  const std::string &containerName() const { return m_container_name; }
-  const std::string &originTrackMapNodeName() const { return m_origin_track_map_node_name; }
-
- private:
-  friend class KFParticle_sPHENIX;  // the only class that can write
-
-  bool m_write_track_container = true;
-  bool m_write_particle_container = true;
-  std::string m_container_name;
-  std::string m_origin_track_map_node_name = "SvtxTrackMap";
+  // DST output
+  bool saveDST = false;
+  bool writeTrackContainer = true;
+  bool writeParticleContainer = true;
+  std::string containerName;
+  std::string originTrackMapNodeName = "SvtxTrackMap";
 };
 
 #endif  // KFPARTICLESPHENIX_KFPARTICLECONFIG_H

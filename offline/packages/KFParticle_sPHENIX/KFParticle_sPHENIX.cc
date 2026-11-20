@@ -66,10 +66,10 @@ KFParticle_sPHENIX::KFParticle_sPHENIX() : KFParticle_sPHENIX("KFPARTICLE"){}
 
 KFParticle_sPHENIX::KFParticle_sPHENIX(const std::string &name)
   : SubsysReco(name)
+  , KFParticle_DST(m_config)  // binds only; m_config is constructed before any of it is read
   , m_has_intermediates_sPHENIX(false)
   , m_constrain_to_vertex_sPHENIX(false)
   , m_require_mva(false)
-  , m_save_dst(false)
   , m_save_output(true)
   , m_outfile_name("outputData.root")
   , m_outfile(nullptr)
@@ -88,7 +88,7 @@ int KFParticle_sPHENIX::Init(PHCompositeNode *topNode)
     std::cout << "Output nTuple: " << m_outfile_name << std::endl;
   }
 
-  if (m_save_dst)
+  if (m_config.saveDST)
   {
     createParticleNode(topNode);
   }
@@ -263,7 +263,7 @@ int KFParticle_sPHENIX::process_event(PHCompositeNode *topNode)
       set_event_bcos(m_this_event_bco, m_last_event_bco); //filling nTuple for BCO Matching
       fillBranch(topNode, mother[i], vertex_kfparticle[i], daughters[i], intermediates[i]);
     }
-    if (m_save_dst)
+    if (m_config.saveDST)
     {
       fillParticleNode(topNode, mother[i], vertex_kfparticle[i], daughters[i], intermediates[i]);
     }
@@ -272,7 +272,7 @@ int KFParticle_sPHENIX::process_event(PHCompositeNode *topNode)
     {
       printParticles(mother[i], vertex_kfparticle[i], daughters[i], intermediates[i], nPVs, multiplicity);
     }
-    if (Verbosity() >= VERBOSITY_MORE && m_save_dst)
+    if (Verbosity() >= VERBOSITY_MORE && m_config.saveDST)
     {
       printNode(topNode);
     }
