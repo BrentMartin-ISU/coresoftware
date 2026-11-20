@@ -14,6 +14,12 @@ struct KFParticle_Config
   bool writeParticleContainer = true;
   std::string containerName;
   std::string originTrackMapNodeName = "SvtxTrackMap";
+
+  // PID (dE/dx)
+  bool usePID = false;
+  bool useLocalPIDFile = false;
+  std::string localPIDFilename;
+  float dEdxBandWidth = 0.2;  // accepted fraction around the expected dE/dx
 };
 
 #endif  // KFPARTICLESPHENIX_KFPARTICLECONFIG_H

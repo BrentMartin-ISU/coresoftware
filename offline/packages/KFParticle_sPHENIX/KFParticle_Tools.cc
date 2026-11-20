@@ -77,8 +77,24 @@
 #include <memory>     // for allocator_traits<>::va...
 #include <numeric>    // for iota
 
+namespace
+{
+  // Shared default configuration for standalone KFParticle_Tools objects. A function-local static, so it
+  // exists before first use even when the object using it is itself a global in another file.
+  const KFParticle_Config &defaultConfig()
+  {
+    static const KFParticle_Config config;
+    return config;
+  }
+}  // namespace
+
 /// KFParticle constructor
 KFParticle_Tools::KFParticle_Tools()
+  : KFParticle_Tools(defaultConfig())
+{
+}
+
+KFParticle_Tools::KFParticle_Tools(const KFParticle_Config &config)
   : m_has_intermediates(false)
   , m_min_mass(0)
   , m_max_mass(0)
@@ -112,6 +128,7 @@ KFParticle_Tools::KFParticle_Tools()
   , m_use_fake_pv(false)
   , m_vtx_map_node_name("SvtxVertexMap")
   , m_trk_map_node_name("SvtxTrackMap")
+  , m_config(config)
 {
 }
 
@@ -994,18 +1011,18 @@ std::tuple<KFParticle, bool> KFParticle_Tools::buildMother(KFParticle vDaughters
                           daughterMass);
 
     // Run PID check
-    if (m_use_PID)
+    if (m_config.usePID)
     {
       int track_PDG_ID = (Int_t) vDaughters[i].GetQ() * daughterOrder[i];
       if (std::find(std::begin(particlesWithPID), std::end(particlesWithPID), std::abs(track_PDG_ID)) != std::end(particlesWithPID))
       {
         float calculated_dEdx_value = get_dEdx(topNode, vDaughters[i]);
         double expected_dEdx_value = get_dEdx_fitValue((Int_t) vDaughters[i].GetQ() * vDaughters[i].GetP(), track_PDG_ID);
-        bool accept_dEdx = isInRange((1 - m_dEdx_band_width) * expected_dEdx_value, calculated_dEdx_value, (1 + m_dEdx_band_width) * expected_dEdx_value);
+        bool accept_dEdx = isInRange((1 - m_config.dEdxBandWidth) * expected_dEdx_value, calculated_dEdx_value, (1 + m_config.dEdxBandWidth) * expected_dEdx_value);
 
         if (m_verbosity >= 11)
         {
-          printSelectionCheck("dE/dx check", (1 - m_dEdx_band_width) * expected_dEdx_value, calculated_dEdx_value, (1 + m_dEdx_band_width) * expected_dEdx_value);
+          printSelectionCheck("dE/dx check", (1 - m_config.dEdxBandWidth) * expected_dEdx_value, calculated_dEdx_value, (1 + m_config.dEdxBandWidth) * expected_dEdx_value);
         }
 
         if (!accept_dEdx)
@@ -1567,7 +1584,7 @@ float KFParticle_Tools::get_dEdx(PHCompositeNode *topNode, const KFParticle &dau
 
 void KFParticle_Tools::init_dEdx_fits()
 {
-  const std::string dedx_fitparams = m_use_local_PID_file ? m_local_PID_filename : CDBInterface::instance()->getUrl("TPC_DEDX_FITPARAM");
+  const std::string dedx_fitparams = m_config.useLocalPIDFile ? m_config.localPIDFilename : CDBInterface::instance()->getUrl("TPC_DEDX_FITPARAM");
 
   std::cout << PHWHERE << " opening " << dedx_fitparams << std::endl;
 
@@ -1579,11 +1596,11 @@ void KFParticle_Tools::init_dEdx_fits()
     return;
   }
 
-  if (m_use_local_PID_file)
+  if (m_config.useLocalPIDFile)
   {
     if (m_verbosity > 4)
     {
-      std::cout << PHWHERE << " using local file " << m_local_PID_filename << std::endl;
+      std::cout << PHWHERE << " using local file " << m_config.localPIDFilename << std::endl;
     }
     // new method is independent of charge
     filefit->GetObject("pi_band",f_pion_plus);

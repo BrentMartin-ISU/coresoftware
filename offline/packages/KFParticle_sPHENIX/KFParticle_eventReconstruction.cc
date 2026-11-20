@@ -92,8 +92,9 @@ namespace
 }  // namespace
 
 /// KFParticle constructor
-KFParticle_eventReconstruction::KFParticle_eventReconstruction()
-  : m_constrain_to_vertex(false)
+KFParticle_eventReconstruction::KFParticle_eventReconstruction(const KFParticle_Config& config)
+  : KFParticle_Tools(config)
+  , m_constrain_to_vertex(false)
   , m_constrain_int_mass(false)
 {
 }

@@ -22,6 +22,8 @@
 #ifndef KFPARTICLESPHENIX_KFPARTICLETOOLS_H
 #define KFPARTICLESPHENIX_KFPARTICLETOOLS_H
 
+#include "KFParticle_Config.h"
+
 #include <globalvertex/MbdVertex.h>
 #include <globalvertex/MbdVertexMap.h>
 #include <trackbase_historic/TrackSeed.h>
@@ -55,7 +57,12 @@ class PHG4TpcGeomContainer;
 class KFParticle_Tools
 {
  public:
+  /// Standalone use (QA, helper objects): reads a default configuration
   KFParticle_Tools();
+
+  /// Used by KFParticle_sPHENIX. The config is owned there and is not yet constructed when this runs:
+  /// store the reference only, never read through it here.
+  explicit KFParticle_Tools(const KFParticle_Config &config);
 
   virtual ~KFParticle_Tools() = default;
 
@@ -177,11 +184,6 @@ class KFParticle_Tools
   std::vector<float> m_intermediate_min_PV_dca_stddev;
   std::vector<float> m_intermediate_max_PV_dca_stddev;
   std::vector<float> m_intermediate_vertex_volume;
-
-  bool m_use_PID{false};
-  bool m_use_local_PID_file{false};
-  std::string m_local_PID_filename;
-  float m_dEdx_band_width{0.2};  // Fraction of expected dE/dx
 
   TF1 *f_pion_plus{nullptr};
   TF1 *f_kaon_plus{nullptr};
@@ -325,6 +327,9 @@ class KFParticle_Tools
   void printSelectionCheck(const std::string &info, unsigned int value);
   std::string accept_colour = "32";
   std::string reject_colour = "31";
+
+ private:
+  const KFParticle_Config &m_config;
 };
 
 #endif  // KFPARTICLESPHENIX_KFPARTICLETOOLS_H

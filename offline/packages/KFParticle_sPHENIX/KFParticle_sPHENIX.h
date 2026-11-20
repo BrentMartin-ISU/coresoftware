@@ -434,13 +434,13 @@ class KFParticle_sPHENIX : public SubsysReco, public KFParticle_nTuple, public K
 
   void selectMotherByMassError(bool select = true) { m_select_by_mass_error = select; }
 
-  void usePID(bool use = true){ m_use_PID = use; }
+  void usePID(bool use = true){ m_config.usePID = use; }
 
-  void useLocalPIDFile(bool use = true){ m_use_local_PID_file = use; }
+  void useLocalPIDFile(bool use = true){ m_config.useLocalPIDFile = use; }
 
-  void setLocalPIDFilename(const std::string &filename){ m_local_PID_filename = filename; }
+  void setLocalPIDFilename(const std::string &filename){ m_config.localPIDFilename = filename; }
  
-  void setPIDacceptFraction(float frac = 0.2){ m_dEdx_band_width = frac; }
+  void setPIDacceptFraction(float frac = 0.2){ m_config.dEdxBandWidth = frac; }
 
   /// Use alternate vertex and track fitters
   void setVertexMapNodeName(const std::string &vtx_map_node_name) { m_vtx_map_node_name = vtx_map_node_name; }

@@ -33,7 +33,8 @@ class PHCompositeNode;
 class KFParticle_eventReconstruction : public KFParticle_Tools
 {
  public:
-  KFParticle_eventReconstruction();
+  /// The config is owned by KFParticle_sPHENIX and is not yet constructed when this runs: pass it on, never read it here
+  explicit KFParticle_eventReconstruction(const KFParticle_Config& config);
 
   ~KFParticle_eventReconstruction() override = default;
 

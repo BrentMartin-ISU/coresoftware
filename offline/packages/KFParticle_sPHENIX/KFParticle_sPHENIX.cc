@@ -61,6 +61,7 @@ KFParticle_sPHENIX::KFParticle_sPHENIX() : KFParticle_sPHENIX("KFPARTICLE"){}
 KFParticle_sPHENIX::KFParticle_sPHENIX(const std::string &name)
   : SubsysReco(name)
   , KFParticle_DST(m_config)  // binds only; m_config is constructed before any of it is read
+  , KFParticle_eventReconstruction(m_config)  // same
   , m_has_intermediates_sPHENIX(false)
   , m_constrain_to_vertex_sPHENIX(false)
   , m_save_output(true)
@@ -97,7 +98,7 @@ int KFParticle_sPHENIX::Init(PHCompositeNode *topNode)
     triggeranalyzer = new TriggerAnalyzer();
   }
 
-  if (m_use_PID)
+  if (m_config.usePID)
   {
     init_dEdx_fits();
   }
