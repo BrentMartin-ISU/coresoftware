@@ -24,6 +24,7 @@
 #include <cmath>
 #include <cstdlib>  // for abs, size_t
 #include <map>      // for map, _Rb_tree_iterator, map<>:...
+#include <utility>  // for swap
 
 class PHCompositeNode;
 class PHNode;
@@ -44,25 +45,23 @@ void KFParticle_nTuple::initializeBranches(PHCompositeNode* topNode)
   m_tree->OptimizeBaskets();
   m_tree->SetAutoSave(-5e6);  // Save the output file every 5MB
 
-  std::string mother_name = m_mother_name.empty() ? "mother" : m_mother_name;
-
-  size_t pos;
-  std::string undrscr = "_";
-  std::string nothing;
-  std::map<std::string, std::string> forbiddenStrings;
-  forbiddenStrings["/"] = undrscr;
-  forbiddenStrings["("] = undrscr;
-  forbiddenStrings[")"] = nothing;
-  forbiddenStrings["+"] = "plus";
-  forbiddenStrings["-"] = "minus";
-  forbiddenStrings["*"] = "star";
-  for (const auto& [badString, goodString] : forbiddenStrings)
+  // Note, TBranch will not allow the leaf to contain a forward slash as it is used to define the branch type
+  const std::map<std::string, std::string> forbiddenStrings = {
+      {"/", "_"}, {"(", "_"}, {")", ""}, {"+", "plus"}, {"-", "minus"}, {"*", "star"}};
+  auto sanitize = [&forbiddenStrings](std::string name)
   {
-    while ((pos = mother_name.find(badString)) != std::string::npos)
+    size_t pos;
+    for (const auto& [badString, goodString] : forbiddenStrings)
     {
-      mother_name.replace(pos, 1, goodString);
+      while ((pos = name.find(badString)) != std::string::npos)
+      {
+        name.replace(pos, 1, goodString);
+      }
     }
-  }
+    return name;
+  };
+
+  std::string mother_name = sanitize(m_mother_name.empty() ? "mother" : m_mother_name);
   //setup only the momentum calibration branches
   
   if (m_minimal_output)
@@ -126,16 +125,7 @@ void KFParticle_nTuple::initializeBranches(PHCompositeNode* topNode)
   {
     for (int i = 0; i < m_num_intermediate_states_nTuple; ++i)
     {
-      std::string intermediate_name = m_intermediate_name_ntuple[i];
-
-      // Note, TBranch will not allow the leaf to contain a forward slash as it is used to define the branch type. Causes problems with J/psi
-      for (const auto& [badString, goodString] : forbiddenStrings)
-      {
-        while ((pos = intermediate_name.find(badString)) != std::string::npos)
-        {
-          intermediate_name.replace(pos, 1, goodString);
-        }
-      }
+      std::string intermediate_name = sanitize(m_intermediate_name_ntuple[i]);
 
       m_tree->Branch(TString(intermediate_name) + "_mass", &m_calculated_intermediate_mass[i], TString(intermediate_name) + "_mass/F");
       m_tree->Branch(TString(intermediate_name) + "_massErr", &m_calculated_intermediate_mass_err[i], TString(intermediate_name) + "_massErr/F");
@@ -266,7 +256,8 @@ void KFParticle_nTuple::initializeBranches(PHCompositeNode* topNode)
   {
     for (int j = i + 1; j < m_num_tracks_nTuple; ++j)
     {
-      std::string dca_branch_name = "track_" + std::to_string(i + 1) + "_track_" + std::to_string(j + 1) + "_DCA";
+      const std::string branch_name_base = "track_" + std::to_string(i + 1) + "_track_" + std::to_string(j + 1);
+      std::string dca_branch_name = branch_name_base + "_DCA";
       std::string dca_leaf_name = dca_branch_name + "/F";
       m_tree->Branch(dca_branch_name.c_str(), &m_daughter_dca[iter], dca_leaf_name.c_str());
 
@@ -274,7 +265,7 @@ void KFParticle_nTuple::initializeBranches(PHCompositeNode* topNode)
       std::string dca_leaf_name_xy = dca_branch_name_xy + "/F";
       m_tree->Branch(dca_branch_name_xy.c_str(), &m_daughter_dca_xy[iter], dca_leaf_name_xy.c_str());
 
-      std::string dca_sig_branch_name = "track_" + std::to_string(i + 1) + "_track_" + std::to_string(j + 1) + "_DCA_sig";
+      std::string dca_sig_branch_name = branch_name_base + "_DCA_sig";
       std::string dca_sig_leaf_name = dca_sig_branch_name + "/F";
       m_tree->Branch(dca_sig_branch_name.c_str(), &m_daughter_dca_sig[iter], dca_sig_leaf_name.c_str());
 
@@ -338,23 +329,23 @@ void KFParticle_nTuple::fillBranch(PHCompositeNode* topNode,
 {
   const float speedOfLight = 2.99792458e-2;
 
-  KFParticle temp;
   KFParticle* daughterArray = daughters.data();
 
-  bool switchTrackPosition;
-
   int num_tracks_used_by_intermediates = 0;
-  for (int k = 0; k < m_num_intermediate_states_nTuple; ++k)  // Rearrange tracks from intermediate states
+
+  // Order the n tracks starting at num_tracks_used_by_intermediates (by PDG ID, or by mass for charge conjugates)
+  auto sortTracks = [&](int n)
   {
-    for (int i = 0; i < m_num_tracks_from_intermediate_nTuple[k]; ++i)
+    for (int i = 0; i < n; ++i)
     {
-      for (int j = i + 1; j < m_num_tracks_from_intermediate_nTuple[k]; ++j)
+      for (int j = i + 1; j < n; ++j)
       {
         int particleAElement = i + num_tracks_used_by_intermediates;
         int particleBElement = j + num_tracks_used_by_intermediates;
         int particleAPID = daughterArray[particleAElement].GetPDG();
         int particleBPID = daughterArray[particleBElement].GetPDG();
 
+        bool switchTrackPosition;
         if (m_get_charge_conjugate_nTuple)
         {
           float daughterA_mass = m_tools->getParticleMass(particleAPID);
@@ -367,44 +358,21 @@ void KFParticle_nTuple::fillBranch(PHCompositeNode* topNode,
         }
         if (switchTrackPosition)
         {
-          temp = daughterArray[particleAElement];
-          daughterArray[particleAElement] = daughterArray[particleBElement];
-          daughterArray[particleBElement] = temp;
+          std::swap(daughterArray[particleAElement], daughterArray[particleBElement]);
         }
       }
     }
+  };
+
+  for (int k = 0; k < m_num_intermediate_states_nTuple; ++k)  // Rearrange tracks from intermediate states
+  {
+    sortTracks(m_num_tracks_from_intermediate_nTuple[k]);
     num_tracks_used_by_intermediates += m_num_tracks_from_intermediate_nTuple[k];
   }
 
   int num_remaining_tracks = m_num_tracks_nTuple - num_tracks_used_by_intermediates;
 
-  for (int i = 0; i < num_remaining_tracks; i++)
-  {
-    for (int j = i + 1; j < num_remaining_tracks; j++)
-    {
-      int particleAElement = i + num_tracks_used_by_intermediates;
-      int particleBElement = j + num_tracks_used_by_intermediates;
-      int particleAPID = daughterArray[particleAElement].GetPDG();
-      int particleBPID = daughterArray[particleBElement].GetPDG();
-
-      if (m_get_charge_conjugate_nTuple)
-      {
-        float daughterA_mass = m_tools->getParticleMass(particleAPID);
-        float daughterB_mass = m_tools->getParticleMass(particleBPID);
-        switchTrackPosition = daughterA_mass > daughterB_mass;
-      }
-      else
-      {
-        switchTrackPosition = particleAPID > particleBPID;
-      }
-      if (switchTrackPosition)
-      {
-        temp = daughterArray[particleAElement];
-        daughterArray[particleAElement] = daughterArray[particleBElement];
-        daughterArray[particleBElement] = temp;
-      }
-    }
-  }
+  sortTracks(num_remaining_tracks);
 
   if (m_extrapolateTracksToSV_nTuple)
   {

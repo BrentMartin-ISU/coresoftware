@@ -112,14 +112,6 @@ KFParticle_Tools::KFParticle_Tools()
   , m_use_fake_pv(false)
   , m_vtx_map_node_name("SvtxVertexMap")
   , m_trk_map_node_name("SvtxTrackMap")
-  , m_dst_mbdvertexmap()
-  , m_dst_mbdvertex()
-  , m_dst_trackmap()
-  , m_dst_track()
-  , m_dst_vertexmap()
-  , m_dst_vertex()
-  , m_cluster_map()
-  , m_geom_container()
 {
 }
 
@@ -547,7 +539,7 @@ int KFParticle_Tools::calcMinPV_DCA(const KFParticle &track, const std::vector<K
       thisPV_DCA_stddev = track.GetDeviationFromVertexXY(PV);
     }
     
-    thisPV_DCA_stddev = std::max(thisPV_DCA_stddev, 0.F); // Τhere are times where the PV_DCA_stddev calc fails
+    thisPV_DCA_stddev = std::max(thisPV_DCA_stddev, 0.F); // There are times where the PV_DCA_stddev calc fails
     ip_significance.push_back(thisPV_DCA_stddev);
   }
 

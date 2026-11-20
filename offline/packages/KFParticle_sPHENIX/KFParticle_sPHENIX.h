@@ -40,6 +40,7 @@
 #include <KFParticle.h>
 
 #include <algorithm>  // for max
+#include <iostream>
 #include <memory>     // for allocator_traits<>::valu...
 #include <string>
 #include <utility>  // for pair
@@ -86,12 +87,14 @@ class KFParticle_sPHENIX : public SubsysReco, public KFParticle_nTuple, public K
 
   static const int max_particles = 99;
 
+  //DEPRECATED: Use setDecayDescriptor instead; still called internally by parseDecayDescriptor
   void setMotherName(const std::string &mother_name)
   {
     m_mother_name = mother_name;
     m_mother_name_Tools = mother_name;
   }
 
+  //DEPRECATED: Use setDecayDescriptor instead; still called internally by parseDecayDescriptor
   void hasIntermediateStates(bool has_intermediates = true)
   {
     m_has_intermediates = has_intermediates;
@@ -100,30 +103,35 @@ class KFParticle_sPHENIX : public SubsysReco, public KFParticle_nTuple, public K
     m_has_intermediates_DST = has_intermediates;
   }
 
+  //DEPRECATED: Use setDecayDescriptor instead; still called internally by parseDecayDescriptor
   void setNumberOfTracks(int num_tracks)
   {
     m_num_tracks = num_tracks;
     m_num_tracks_nTuple = num_tracks;
   }
 
+  //DEPRECATED: Use setDecayDescriptor instead; still called internally by parseDecayDescriptor
   void setNumberTracksFromIntermeditateState(const std::vector<int> &num_tracks)
   {
     m_num_tracks_from_intermediate.insert(m_num_tracks_from_intermediate.end(), num_tracks.begin(), num_tracks.end());
     m_num_tracks_from_intermediate_nTuple.insert(m_num_tracks_from_intermediate_nTuple.end(), num_tracks.begin(), num_tracks.end());
   }
 
+  //DEPRECATED: Use setDecayDescriptor instead; still called internally by parseDecayDescriptor
   void setNumberOfIntermediateStates(int n_intermediates)
   {
     m_num_intermediate_states = n_intermediates;
     m_num_intermediate_states_nTuple = n_intermediates;
   }
 
+  //DEPRECATED: Use setDecayDescriptor instead; still called internally by parseDecayDescriptor
   void getChargeConjugate(bool get_charge_conjugate = true)
   {
     m_get_charge_conjugate_nTuple = get_charge_conjugate;
     m_get_charge_conjugate = get_charge_conjugate;
   }
 
+  //DEPRECATED: Use setDecayDescriptor instead; still called internally by parseDecayDescriptor
   void setDaughters(std::vector<std::pair<std::string, int>> &daughter_list)
   {
     for (const auto &entry : daughter_list)
@@ -133,6 +141,7 @@ class KFParticle_sPHENIX : public SubsysReco, public KFParticle_nTuple, public K
     }
   }
 
+  //DEPRECATED: Use setDecayDescriptor instead; still called internally by parseDecayDescriptor
   void setIntermediateStates(const std::vector<std::pair<std::string, int>> &intermediate_list)
   {
     for (const auto &entry : intermediate_list)
@@ -375,20 +384,23 @@ class KFParticle_sPHENIX : public SubsysReco, public KFParticle_nTuple, public K
 
   void use2Dmatching(bool use_2D_matching_tools = true) { m_use_2D_matching_tools = use_2D_matching_tools; }
 
-  void useMVA(bool require_mva = true) { m_require_mva = require_mva; }
+  //DEPRECATED: MVA is not used in the current implementation of KFParticle; this setting has no effect
+  void useMVA(bool /*require_mva*/ = true) { std::cout << "MVA is deprecated and will be removed in future versions." << std::endl; }
 
-  void setNumMVAPars(unsigned int nPars) { m_nPars = nPars; }
+  //DEPRECATED: MVA is not used in the current implementation of KFParticle; this setting has no effect
+  void setNumMVAPars(unsigned int /*nPars*/) { std::cout << "MVA is deprecated and will be removed in future versions." << std::endl; }
 
-  void setMVAVarList(const std::vector<std::string> &mva_variable_list)
-  {
-    m_mva_variable_list.insert(m_mva_variable_list.end(), mva_variable_list.begin(), mva_variable_list.end());
-  }
+  //DEPRECATED: MVA is not used in the current implementation of KFParticle; this setting has no effect
+  void setMVAVarList(const std::vector<std::string> & /*mva_variable_list*/) { std::cout << "MVA is deprecated and will be removed in future versions." << std::endl; }
 
-  void setMVAType(const std::string &mva_type) { m_mva_type = mva_type; }
+  //DEPRECATED: MVA is not used in the current implementation of KFParticle; this setting has no effect
+  void setMVAType(const std::string & /*mva_type*/) { std::cout << "MVA is deprecated and will be removed in future versions." << std::endl; }
 
-  void setMVAWeightsPath(const std::string &mva_weights_path) { m_mva_path = mva_weights_path; }
+  //DEPRECATED: MVA is not used in the current implementation of KFParticle; this setting has no effect
+  void setMVAWeightsPath(const std::string & /*mva_weights_path*/) { std::cout << "MVA is deprecated and will be removed in future versions." << std::endl; }
 
-  void setMVACutValue(float cut_value) { m_mva_cut_value = cut_value; }
+  //DEPRECATED: MVA is not used in the current implementation of KFParticle; this setting has no effect
+  void setMVACutValue(float /*cut_value*/) { std::cout << "MVA is deprecated and will be removed in future versions." << std::endl; }
 
   void saveDST(bool save = true) { m_save_dst = save; }
 
@@ -414,7 +426,8 @@ class KFParticle_sPHENIX : public SubsysReco, public KFParticle_nTuple, public K
 
   void getAllPVInfo(bool pvinfo = true) { m_get_all_PVs = pvinfo; }
 
-  void saveLightweightNTuple(bool minimal = true)  // QA output is a sub-mode of the lightweight nTuple
+  // QA output is a sub-mode of the lightweight nTuple
+  void saveLightweightNTuple(bool minimal = true)
   {
     m_minimal_output = minimal;
     if (!minimal)
