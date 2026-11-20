@@ -17,6 +17,7 @@ AM_CPPFLAGS = \
 
 
 pkginclude_HEADERS = \
+  KFParticle_Config.h \
   KFParticle_Container.h \
   KFParticle_DST.h \
   KFParticle_truthAndDetTools.h \
