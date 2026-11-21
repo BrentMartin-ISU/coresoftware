@@ -146,7 +146,7 @@ class KFParticle_Tools
 
   // Read-only access to the settings that the nTuple/truth helper classes need.
   // The helpers use the one KFParticle_Tools instance that owns the settings (see
-  // KFParticle_truthAndDetTools::setToolsInstance) rather than keeping their own copies.
+  // KFParticle_nTuple::setToolsInstance) rather than keeping their own copies.
   bool get_use_mbd_vertex() const { return m_use_mbd_vertex; }
   bool get_dont_use_global_vertex() const { return m_dont_use_global_vertex; }
   const std::string &get_vtx_map_node_name() const { return m_vtx_map_node_name; }

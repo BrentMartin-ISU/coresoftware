@@ -26,7 +26,6 @@ pkginclude_HEADERS = \
   KFParticle_sPHENIX.h \
   KFParticle_Tools.h \
   KFParticle_triggerInfo.h \
-  KFParticle_truthAndDetTools.h \
   KFParticle_truthInfo.h \
   KFParticle_utilities.h
 
@@ -50,7 +49,6 @@ libkfparticle_sphenix_la_SOURCES = \
   KFParticle_sPHENIX.cc \
   KFParticle_Tools.cc \
   KFParticle_triggerInfo.cc \
-  KFParticle_truthAndDetTools.cc \
   KFParticle_truthInfo.cc \
   KFParticle_utilities.cc
 

@@ -604,7 +604,7 @@ void KFParticle_nTuple::fillBranch(PHCompositeNode* topNode,
     {
       sortedDaughterVector.push_back(daughterArray[i]);
     }
-    allPVInfo(topNode, m_tree, motherParticle, sortedDaughterVector, intermediates);
+    allPVInfo(topNode, motherParticle, sortedDaughterVector, intermediates);
   }
 
   if (m_constrain_to_vertex_nTuple)
@@ -718,12 +718,22 @@ void KFParticle_nTuple::fillBranch(PHCompositeNode* topNode,
     m_tree->Fill();
   }
 
-  if (m_truth_matching || m_detector_info || m_calo.get5x5CellInfo())
+  // Each helper empties the per-candidate vectors it filled
+  if (m_calo_info)
   {
-    clearVectors();
-    m_detector.clear(m_num_tracks_nTuple);
-    m_truth.clear(m_num_tracks_nTuple);
     m_calo.clear(m_num_tracks_nTuple);
+  }
+  if (m_truth_matching)
+  {
+    m_truth.clear(m_num_tracks_nTuple);
+  }
+  if (m_detector_info)
+  {
+    m_detector.clear(m_num_tracks_nTuple);
+  }
+  if (m_get_all_PVs)
+  {
+    clearAllPVInfo();
   }
 
   if (m_trigger_info_available)
@@ -787,7 +797,7 @@ void KFParticle_nTuple::fillMomentumCalibrationBranch(PHCompositeNode* topNode,
   m_tree->Fill();
 }
 
-float KFParticle_nTuple::calc_secondary_vertex_mass_noPID(std::vector<KFParticle> kfp_daughters)
+float KFParticle_nTuple::calc_secondary_vertex_mass_noPID(std::vector<KFParticle> kfp_daughters) const
 {
   KFParticle mother_noPID;
   KFParticle* daughterArray = kfp_daughters.data();
@@ -817,4 +827,56 @@ bool KFParticle_nTuple::fillConditionMet() const
   // Fill if this is a track-only analysis, if track-calo matching is not required,
   // or otherwise only if the track was matched to an EMCal cluster
   return !m_calo_info || !m_require_track_emcal_match || isTrackEMCalmatch;
+}
+
+void KFParticle_nTuple::allPVInfo(PHCompositeNode *topNode,
+                                  const KFParticle &motherParticle,
+                                  std::vector<KFParticle> daughters,
+                                  std::vector<KFParticle> intermediates)
+{
+  std::vector<KFParticle> primaryVertices = m_tools->makeAllPrimaryVertices(topNode, m_tools->get_vtx_map_node_name());
+
+  for (auto &primaryVertice : primaryVertices)
+  {
+    allPV_x.push_back(primaryVertice.GetX());
+    allPV_y.push_back(primaryVertice.GetY());
+    allPV_z.push_back(primaryVertice.GetZ());
+
+    allPV_mother_PV_DCA.push_back(motherParticle.GetDistanceFromVertex(primaryVertice));
+    allPV_mother_PV_DCA_StdDev.push_back(motherParticle.GetDeviationFromVertex(primaryVertice));
+
+    for (unsigned int j = 0; j < daughters.size(); ++j)
+    {
+      allPV_daughter_PV_DCA[j].push_back(daughters[j].GetDistanceFromVertex(primaryVertice));
+      allPV_daughter_PV_DCA_StdDev[j].push_back(daughters[j].GetDeviationFromVertex(primaryVertice));
+    }
+
+    for (unsigned int j = 0; j < intermediates.size(); ++j)
+    {
+      allPV_intermediates_PV_DCA[j].push_back(intermediates[j].GetDistanceFromVertex(primaryVertice));
+      allPV_intermediates_PV_DCA_StdDev[j].push_back(intermediates[j].GetDeviationFromVertex(primaryVertice));
+    }
+  }
+}
+
+void KFParticle_nTuple::clearAllPVInfo()
+{
+  for (int i = 0; i < m_num_tracks_nTuple; ++i)
+  {
+    allPV_daughter_PV_DCA[i].clear();
+    allPV_daughter_PV_DCA_StdDev[i].clear();
+  }
+
+  allPV_x.clear();
+  allPV_y.clear();
+  allPV_z.clear();
+
+  allPV_mother_PV_DCA.clear();
+  allPV_mother_PV_DCA_StdDev.clear();
+
+  for (int i = 0; i < m_num_intermediate_states_nTuple; ++i)
+  {
+    allPV_intermediates_PV_DCA[i].clear();
+    allPV_intermediates_PV_DCA_StdDev[i].clear();
+  }
 }

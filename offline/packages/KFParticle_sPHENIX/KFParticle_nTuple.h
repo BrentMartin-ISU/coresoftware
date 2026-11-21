@@ -4,8 +4,8 @@
 #include "KFParticle_caloInfo.h"
 #include "KFParticle_detectorInfo.h"
 #include "KFParticle_triggerInfo.h"
-#include "KFParticle_truthAndDetTools.h"
 #include "KFParticle_truthInfo.h"
+#include "KFParticle_utilities.h"
 
 #include <KFParticle.h>
 
@@ -17,8 +17,9 @@
 class PHCompositeNode;
 class TTree;
 class CentralityInfo;
+class KFParticle_Tools;
 
-class KFParticle_nTuple : public KFParticle_truthAndDetTools, public KFParticle_triggerInfo
+class KFParticle_nTuple : public KFParticle_triggerInfo
 {
  public:
   /// Constructor
@@ -47,14 +48,14 @@ class KFParticle_nTuple : public KFParticle_truthAndDetTools, public KFParticle_
     m_last_event_bco = last_bco;
   }
 
-  float calc_secondary_vertex_mass_noPID(std::vector<KFParticle> kfp_daughters);
+  float calc_secondary_vertex_mass_noPID(std::vector<KFParticle> kfp_daughters) const;
 
   bool fillConditionMet() const;
 
   /// Passes the single KFParticle_Tools instance to every helper that reads its settings
   void setToolsInstance(KFParticle_Tools *tools)
   {
-    KFParticle_truthAndDetTools::setToolsInstance(tools);
+    m_tools = tools;
     m_detector.setToolsInstance(tools);
     m_truth.setToolsInstance(tools);
     m_calo.setToolsInstance(tools);
@@ -106,7 +107,8 @@ class KFParticle_nTuple : public KFParticle_truthAndDetTools, public KFParticle_
   bool m_extrapolateTracksToSV_nTuple{true};
   bool m_constrain_to_vertex_nTuple{false};
   bool m_get_all_PVs{false};
-  // int m_num_intermediate_states_nTuple;
+  int m_num_tracks_nTuple{0};
+  int m_num_intermediate_states_nTuple{0};
   // int m_num_tracks_from_intermediate_nTuple[99];
   std::vector<int> m_num_tracks_from_intermediate_nTuple;
   bool m_truth_matching{false};
@@ -130,6 +132,13 @@ class KFParticle_nTuple : public KFParticle_truthAndDetTools, public KFParticle_
   int m_verbosity_nTuple{0};
 
  private:
+  static constexpr int max_tracks{KFParticle_utilities::max_tracks};
+
+  // The single KFParticle_Tools instance that holds the user's settings (vertex/track map names,
+  // MBD vs SVTX vertex, global vertex use, ...). Set once by KFParticle_sPHENIX so that this class
+  // and its helpers never work from a second, default-configured copy.
+  KFParticle_Tools *m_tools{nullptr};
+
   KFParticle_detectorInfo m_detector;
   KFParticle_truthInfo m_truth;
   KFParticle_caloInfo m_calo;
@@ -140,6 +149,13 @@ class KFParticle_nTuple : public KFParticle_truthAndDetTools, public KFParticle_
   void fillMomentumCalibrationBranch(PHCompositeNode *topNode,
                                      KFParticle &motherParticle,
                                      KFParticle *daughterArray);
+
+  // Distance of the mother, daughters and intermediates to every primary vertex in the event
+  void allPVInfo(PHCompositeNode *topNode,
+                 const KFParticle &motherParticle,
+                 std::vector<KFParticle> daughters,
+                 std::vector<KFParticle> intermediates);
+  void clearAllPVInfo();
 
 
   TTree *m_tree{nullptr};
@@ -220,7 +236,6 @@ class KFParticle_nTuple : public KFParticle_truthAndDetTools, public KFParticle_
   // float *m_calculated_intermediate_cov[max_intermediates];
   float m_calculated_intermediate_cov[max_intermediates][21]{{0}, {0}};
 
-  // static const int max_tracks {20};
   float m_calculated_daughter_mass[max_tracks]{0};
   float m_calculated_daughter_PV_dca[max_tracks]{0};
   float m_calculated_daughter_PV_dca_err[max_tracks]{0};
@@ -286,6 +301,16 @@ class KFParticle_nTuple : public KFParticle_truthAndDetTools, public KFParticle_
   uint64_t m_last_event_bco{0}; //only keeping this, BCO for the last event
 
   bool m_trigger_info_available{false};
+
+  std::vector<float> allPV_x;
+  std::vector<float> allPV_y;
+  std::vector<float> allPV_z;
+  std::vector<float> allPV_mother_PV_DCA;
+  std::vector<float> allPV_mother_PV_DCA_StdDev;
+  std::vector<float> allPV_daughter_PV_DCA[max_tracks];
+  std::vector<float> allPV_daughter_PV_DCA_StdDev[max_tracks];
+  std::vector<float> allPV_intermediates_PV_DCA[max_tracks];
+  std::vector<float> allPV_intermediates_PV_DCA_StdDev[max_tracks];
 };
 
 #endif
