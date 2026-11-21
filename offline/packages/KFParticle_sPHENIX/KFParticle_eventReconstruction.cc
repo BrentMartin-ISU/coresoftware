@@ -93,8 +93,8 @@ namespace
 /// KFParticle constructor
 KFParticle_eventReconstruction::KFParticle_eventReconstruction(const KFParticle_Config& config)
   : KFParticle_Tools(config)
-  , m_constrain_to_vertex(false)
   , m_constrain_int_mass(false)
+  , m_config(config)
 {
 }
 
@@ -335,7 +335,7 @@ void KFParticle_eventReconstruction::buildChain(std::vector<KFParticle>& selecte
               for (const auto& i_pv : primaryVerticesAdv)
               {
                 auto [candidate, isGood] = getCombination(motherDecayProducts.data(), uniqueCombination.data(), i_pv,
-                                                          m_constrain_to_vertex, false, 0, num_mother_decay_products, m_constrain_int_mass, required_unique_vertexID, topNode);
+                                                          m_config.constrainToPrimaryVertex, false, 0, num_mother_decay_products, m_constrain_int_mass, required_unique_vertexID, topNode);
 
                 if (isGood)
                 {
@@ -359,7 +359,7 @@ void KFParticle_eventReconstruction::buildChain(std::vector<KFParticle>& selecte
                 if (isGood)
                 {
                   goodCandidates.push_back(candidate);
-                  if (m_constrain_to_vertex)
+                  if (m_config.constrainToPrimaryVertex)
                   {
                     goodVertex.push_back(i_pv);
                   }
@@ -382,10 +382,10 @@ void KFParticle_eventReconstruction::buildChain(std::vector<KFParticle>& selecte
 
             if (!goodCandidates.empty())
             {
-              int bestCombinationIndex = selectBestCombination(m_constrain_to_vertex, false, goodCandidates, goodVertex);
+              int bestCombinationIndex = selectBestCombination(m_config.constrainToPrimaryVertex, false, goodCandidates, goodVertex);
 
               selectedMotherAdv.push_back(goodCandidates[bestCombinationIndex]);
-              if (m_constrain_to_vertex)
+              if (m_config.constrainToPrimaryVertex)
               {
                 selectedVertexAdv.push_back(goodVertex[bestCombinationIndex]);
               }
@@ -435,7 +435,7 @@ void KFParticle_eventReconstruction::getCandidateDecay(std::vector<KFParticle>& 
   std::vector<KFParticle> goodCandidates;
   std::vector<KFParticle> goodVertex;
   std::vector<std::vector<KFParticle>> goodDaughters(nTracks);
-  bool fixToPV = m_constrain_to_vertex && !isIntermediate;
+  bool fixToPV = m_config.constrainToPrimaryVertex && !isIntermediate;
 
   float required_unique_vertexID = 0;
   for (int i = n_track_start; i < n_track_stop; ++i)
@@ -457,7 +457,7 @@ void KFParticle_eventReconstruction::getCandidateDecay(std::vector<KFParticle>& 
       for (const auto& pv : primaryVerticesCand)  // Loop over all PVs in the event
       {
         int* PDGIDofFirstParticleInCombination = uniqueCombination.data();
-        auto [candidate, isGood] = getCombination(daughterTracks.data(), PDGIDofFirstParticleInCombination, pv, m_constrain_to_vertex,
+        auto [candidate, isGood] = getCombination(daughterTracks.data(), PDGIDofFirstParticleInCombination, pv, m_config.constrainToPrimaryVertex,
                                                   isIntermediate, intermediateNumber, nTracks, constrainMass, required_unique_vertexID, topNode);
         if (isIntermediate && isGood)
         {
@@ -517,7 +517,7 @@ int KFParticle_eventReconstruction::selectBestCombination(bool PVconstraint, boo
                                                           std::vector<KFParticle> possibleCandidates,
                                                           std::vector<KFParticle> possibleVertex)
 {
-  const bool byMassError = !PVconstraint || isAnInterMother || m_select_by_mass_error;
+  const bool byMassError = !PVconstraint || isAnInterMother || m_config.selectMotherByMassError;
   auto score = [&](unsigned int i) -> float
   {
     if (byMassError)

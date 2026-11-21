@@ -86,11 +86,10 @@ class KFParticle_eventReconstruction : public KFParticle_Tools
   KFParticle createFakePV();
 
  protected:
-  bool m_constrain_to_vertex;
   bool m_constrain_int_mass;
-  bool m_select_by_mass_error {true};
 
- //private:
+ private:
+  const KFParticle_Config& m_config;
 };
 
 #endif  // KFPARTICLESPHENIX_KFPARTICLEEVENTRECONSTRUCTION_H

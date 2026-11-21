@@ -70,7 +70,6 @@ class KFParticle_nTuple
  protected:
   bool m_has_intermediates_nTuple{false};
   bool m_extrapolateTracksToSV_nTuple{true};
-  bool m_constrain_to_vertex_nTuple{false};
   int m_num_tracks_nTuple{0};
   int m_num_intermediate_states_nTuple{0};
   // int m_num_tracks_from_intermediate_nTuple[99];

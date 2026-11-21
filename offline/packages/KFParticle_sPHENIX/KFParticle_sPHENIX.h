@@ -242,12 +242,7 @@ class KFParticle_sPHENIX : public SubsysReco, public KFParticle_nTuple, public K
 
   void setMaximumMotherVertexVolume(float vertexvol) { m_mother_vertex_volume = vertexvol; }
 
-  void constrainToPrimaryVertex(bool constrain_to_vertex = true)
-  {
-    m_constrain_to_vertex = constrain_to_vertex;
-    m_constrain_to_vertex_nTuple = constrain_to_vertex;
-    m_constrain_to_vertex_sPHENIX = constrain_to_vertex;
-  }
+  void constrainToPrimaryVertex(bool constrain_to_vertex = true) { m_config.constrainToPrimaryVertex = constrain_to_vertex; }
 
   void useMbdVertex(bool use = true)
   {
@@ -470,7 +465,7 @@ class KFParticle_sPHENIX : public SubsysReco, public KFParticle_nTuple, public K
 
   void requireTrackVertexBunchCrossingMatch(bool require = true) { m_require_track_and_vertex_match = require; }
 
-  void selectMotherByMassError(bool select = true) { m_select_by_mass_error = select; }
+  void selectMotherByMassError(bool select = true) { m_config.selectMotherByMassError = select; }
 
   void usePID(bool use = true){ m_config.usePID = use; }
 
@@ -497,7 +492,6 @@ class KFParticle_sPHENIX : public SubsysReco, public KFParticle_nTuple, public K
  private:
   KFParticle_Config m_config;  // the only writable configuration; base classes hold a const reference to it
   bool m_has_intermediates_sPHENIX;
-  bool m_constrain_to_vertex_sPHENIX;
   int candidateCounter = 0;
   //Adding member variables for BCO matching
   uint64_t m_this_event_bco{0};

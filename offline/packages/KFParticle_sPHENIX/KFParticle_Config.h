@@ -38,6 +38,10 @@ struct KFParticle_Config
   bool useCentrality = false;
   bool dEdxInfo = false;
 
+  // Vertexing and candidate selection
+  bool constrainToPrimaryVertex = false;
+  bool selectMotherByMassError = true;  // best candidate = smallest mass error; false = closest to its PV (only with the PV constraint, mother only)
+
   // Track-EMCal matching
   int track2CaloVerbosity = 0;
   float emcalRadius = 100.70;      // radius of the track state used for the match

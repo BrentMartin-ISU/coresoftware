@@ -66,7 +66,6 @@ KFParticle_sPHENIX::KFParticle_sPHENIX(const std::string &name)
   , KFParticle_DST(m_config)  // same
   , KFParticle_eventReconstruction(m_config)  // same
   , m_has_intermediates_sPHENIX(false)
-  , m_constrain_to_vertex_sPHENIX(false)
   , m_outfile(nullptr)
 {
   setToolsInstance(static_cast<KFParticle_Tools *>(this));
@@ -226,7 +225,7 @@ int KFParticle_sPHENIX::process_event(PHCompositeNode *topNode)
   {
     intermediates = daughters;
   }
-  if (!m_constrain_to_vertex_sPHENIX)
+  if (!m_config.constrainToPrimaryVertex)
   {
     vertex_kfparticle = mother;
   }
@@ -308,7 +307,7 @@ void KFParticle_sPHENIX::printParticles(const KFParticle &motherParticle,
     identify(daughterParticle);
   }
 
-  if (m_constrain_to_vertex_sPHENIX)
+  if (m_config.constrainToPrimaryVertex)
   {
     std::cout << "Primary vertex information:" << std::endl;
     std::cout << "(x,y,z) = (" << chosenVertex.GetX() << " +/- " << std::sqrt(chosenVertex.GetCovariance(0, 0)) << ", ";

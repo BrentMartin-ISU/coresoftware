@@ -78,7 +78,7 @@ void KFParticle_nTuple::initializeBranches(PHCompositeNode* topNode)
 
   m_tree->Branch(TString(mother_name) + "_mass", &m_calculated_mother_mass, TString(mother_name) + "_mass/F");
   m_tree->Branch(TString(mother_name) + "_massErr", &m_calculated_mother_mass_err, TString(mother_name) + "_massErr/F");
-  if (m_constrain_to_vertex_nTuple)
+  if (m_config.constrainToPrimaryVertex)
   {
     m_tree->Branch(TString(mother_name) + "_decayTime", &m_calculated_mother_decaytime, TString(mother_name) + "_decayTime/F");
     m_tree->Branch(TString(mother_name) + "_decayTimeErr", &m_calculated_mother_decaytime_err, TString(mother_name) + "_decayTimeErr/F");
@@ -138,7 +138,7 @@ void KFParticle_nTuple::initializeBranches(PHCompositeNode* topNode)
       m_tree->Branch(TString(intermediate_name) + "_decayLengthErr_xy", &m_calculated_intermediate_decaylength_xy_err[i], TString(intermediate_name) + "_decayLengthErr_xy/F");
       m_tree->Branch(TString(intermediate_name) + "_DIRA", &m_calculated_intermediate_dira[i], TString(intermediate_name) + "_DIRA/F");
       m_tree->Branch(TString(intermediate_name) + "_FDchi2", &m_calculated_intermediate_fdchi2[i], TString(intermediate_name) + "_FDchi2/F");
-      if (m_constrain_to_vertex_nTuple)
+      if (m_config.constrainToPrimaryVertex)
       {
         m_tree->Branch(TString(intermediate_name) + "_PV_DCA", &m_calculated_intermediate_PV_dca[i], TString(intermediate_name) + "_PV_DCA/F");
         m_tree->Branch(TString(intermediate_name) + "_PV_DCA_StdDev", &m_calculated_intermediate_PV_dca_sig[i], TString(intermediate_name) + "_PV_DCA_StdDev/F");
@@ -195,7 +195,7 @@ void KFParticle_nTuple::initializeBranches(PHCompositeNode* topNode)
     }
 
     m_tree->Branch(TString(daughter_number) + "_mass", &m_calculated_daughter_mass[i], TString(daughter_number) + "_mass/F");
-    if (m_constrain_to_vertex_nTuple)
+    if (m_config.constrainToPrimaryVertex)
     {
       m_tree->Branch(TString(daughter_number) + "_PV_DCA", &m_calculated_daughter_PV_dca[i], TString(daughter_number) + "_PV_DCA/F");
       m_tree->Branch(TString(daughter_number) + "_PV_DCA_Err", &m_calculated_daughter_PV_dca_err[i], TString(daughter_number) + "_PV_DCA_Err/F");
@@ -244,7 +244,7 @@ void KFParticle_nTuple::initializeBranches(PHCompositeNode* topNode)
     }
     if (m_config.truthMatching)
     {
-      m_truth.initializeBranches(m_tree, i, daughter_number, m_constrain_to_vertex_nTuple);
+      m_truth.initializeBranches(m_tree, i, daughter_number, m_config.constrainToPrimaryVertex);
     }
     if (m_config.detectorInfo)
     {
@@ -278,7 +278,7 @@ void KFParticle_nTuple::initializeBranches(PHCompositeNode* topNode)
     }
   }
 
-  if (m_constrain_to_vertex_nTuple)
+  if (m_config.constrainToPrimaryVertex)
   {
     m_tree->Branch("primary_vertex_x", &m_calculated_vertex_x, "primary_vertex_x/F");
     m_tree->Branch("primary_vertex_y", &m_calculated_vertex_y, "primary_vertex_y/F");
@@ -390,7 +390,7 @@ void KFParticle_nTuple::fillBranch(PHCompositeNode* topNode,
     return;
   }
 
-  if (m_constrain_to_vertex_nTuple)
+  if (m_config.constrainToPrimaryVertex)
   {
     m_calculated_mother_dira = m_tools->eventDIRA(motherParticle, vertex_fillbranch);
     m_calculated_mother_dira_xy = m_tools->eventDIRA(motherParticle, vertex_fillbranch, false);
@@ -435,7 +435,7 @@ void KFParticle_nTuple::fillBranch(PHCompositeNode* topNode,
     {
       m_calculated_intermediate_dira[i] = m_tools->eventDIRA(intermediateArray[i], motherParticle);
       m_calculated_intermediate_fdchi2[i] = m_tools->flightDistanceChi2(intermediateArray[i], motherParticle);
-      if (m_constrain_to_vertex_nTuple)
+      if (m_config.constrainToPrimaryVertex)
       {
         m_calculated_intermediate_PV_dca[i] = intermediateArray[i].GetDistanceFromVertex(vertex_fillbranch);
         m_calculated_intermediate_PV_dca_sig[i] = intermediateArray[i].GetDeviationFromVertex(vertex_fillbranch);
@@ -484,7 +484,7 @@ void KFParticle_nTuple::fillBranch(PHCompositeNode* topNode,
   for (int i = 0; i < m_num_tracks_nTuple; ++i)
   {
     m_calculated_daughter_mass[i] = daughterArray[i].GetMass();
-    if (m_constrain_to_vertex_nTuple)
+    if (m_config.constrainToPrimaryVertex)
     {
       m_calculated_daughter_PV_dca[i] = daughterArray[i].GetDistanceFromVertex(vertex_fillbranch);
       m_calculated_daughter_PV_dca_sig[i] = daughterArray[i].GetDeviationFromVertex(vertex_fillbranch);
@@ -547,7 +547,7 @@ void KFParticle_nTuple::fillBranch(PHCompositeNode* topNode,
     }
     if (m_config.truthMatching)
     {
-      m_truth.fill(topNode, daughterArray[i], i, vertex_fillbranch, m_constrain_to_vertex_nTuple);
+      m_truth.fill(topNode, daughterArray[i], i, vertex_fillbranch, m_config.constrainToPrimaryVertex);
       m_truth.getHepMCInfo(topNode, daughterArray[i], i);
     }
     if (m_config.detectorInfo)
@@ -607,7 +607,7 @@ void KFParticle_nTuple::fillBranch(PHCompositeNode* topNode,
     allPVInfo(topNode, motherParticle, sortedDaughterVector, intermediates);
   }
 
-  if (m_constrain_to_vertex_nTuple)
+  if (m_config.constrainToPrimaryVertex)
   {
     motherParticle.SetProductionVertex(vertex_fillbranch);
     motherParticle.GetLifeTime(m_calculated_mother_decaytime, m_calculated_mother_decaytime_err);
@@ -640,7 +640,7 @@ void KFParticle_nTuple::fillBranch(PHCompositeNode* topNode,
   m_tools->getTracksFromBC(topNode, m_calculated_daughter_bunch_crossing[0], m_tools->get_vtx_map_node_name(), m_multiplicity, m_nPVs);
   m_ncharged_siseed_multiplicity = m_tools->getNchargedSiSeedMultiplicity(topNode, m_calculated_daughter_bunch_crossing[0]);
   // cannot retrieve vertex map info from fake PV, hence the second condition
-  if (m_constrain_to_vertex_nTuple && !m_use_fake_pv_nTuple)
+  if (m_config.constrainToPrimaryVertex && !m_use_fake_pv_nTuple)
   {
     m_nTracksOfVertex = m_tools->getTracksFromVertex(topNode, vertex_fillbranch, m_tools->get_vtx_map_node_name());
   }
