@@ -1,6 +1,7 @@
 #ifndef KFPARTICLESPHENIX_KFPARTICLEDETECTORINFO_H
 #define KFPARTICLESPHENIX_KFPARTICLEDETECTORINFO_H
 
+#include "KFParticle_Config.h"
 #include "KFParticle_utilities.h"
 
 #include <string>
@@ -15,22 +16,27 @@ class TTree;
 class KFParticle_detectorInfo
 {
  public:
+  // Binds the configuration only; it is not read until the branches are booked
+  explicit KFParticle_detectorInfo(const KFParticle_Config &config)
+    : m_config(config)
+  {
+  }
+
   void initializeBranches(TTree *m_tree, int daughter_id, const std::string &daughter_number);
   void fill(PHCompositeNode *topNode, const KFParticle &daughter, int daughter_id);
   void clear(int nTracks);
 
   void setToolsInstance(const KFParticle_Tools *tools) { m_tools = tools; }
-  void setDetailedTracking(bool set_variable) { m_get_detailed_tracking = set_variable; }
 
  private:
   void initializeSubDetectorBranches(TTree *m_tree, const std::string &detectorName, int daughter_id, const std::string &daughter_number);
 
   static constexpr int max_tracks{KFParticle_utilities::max_tracks};
 
+  const KFParticle_Config &m_config;
+
   // Owned by KFParticle_sPHENIX; holds the track map node name
   const KFParticle_Tools *m_tools{nullptr};
-
-  bool m_get_detailed_tracking{true};
 
   unsigned int detector_nHits_MVTX[max_tracks]{0};
   unsigned int detector_nHits_INTT[max_tracks]{0};

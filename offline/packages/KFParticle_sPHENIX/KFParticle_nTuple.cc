@@ -65,11 +65,11 @@ void KFParticle_nTuple::initializeBranches(PHCompositeNode* topNode)
   std::string mother_name = sanitize(m_mother_name.empty() ? "mother" : m_mother_name);
   //setup only the momentum calibration branches
   
-  if (m_minimal_output)
+  if (m_config.lightweightNTuple)
   {
     initializeMomentumCalibrationBranches(mother_name);
     // Hand the tree to the QA histogram manager, which then owns it (and detaches it from any TFile)
-    if (m_minimal_output_to_qa && !QAHistManagerDef::getHistoManager()->registerHisto(m_qa_tree_path, m_tree))
+    if (m_config.lightweightNTupleToQA && !QAHistManagerDef::getHistoManager()->registerHisto(m_qa_tree_path, m_tree))
     {
       std::cout << "KFParticle_nTuple: could not register " << m_qa_tree_path << " with the QA histogram manager" << std::endl;
     }
@@ -94,7 +94,7 @@ void KFParticle_nTuple::initializeBranches(PHCompositeNode* topNode)
     m_tree->Branch(TString(mother_name) + "_PV_DCA_Err", &m_calculated_mother_PV_dca_err, TString(mother_name) + "_PV_DCA_Err/F");
     m_tree->Branch(TString(mother_name) + "_PV_DCA_xy", &m_calculated_mother_PV_dca_xy, TString(mother_name) + "_PV_DCA_xy/F");
   }
-  if (m_get_all_PVs)
+  if (m_config.allPVInfo)
   {
     m_tree->Branch(TString(mother_name) + "_PV_DCA_allPV", &allPV_mother_PV_DCA);
     m_tree->Branch(TString(mother_name) + "_PV_DCA_StdDev_allPV", &allPV_mother_PV_DCA_StdDev);
@@ -145,7 +145,7 @@ void KFParticle_nTuple::initializeBranches(PHCompositeNode* topNode)
         m_tree->Branch(TString(intermediate_name) + "_PV_DCA_Err", &m_calculated_intermediate_PV_dca_err[i], TString(intermediate_name) + "_PV_DCA_Err/F");
         m_tree->Branch(TString(intermediate_name) + "_PV_DCA_xy", &m_calculated_intermediate_PV_dca_xy[i], TString(intermediate_name) + "_PV_DCA_xy/F");
       }
-      if (m_get_all_PVs)
+      if (m_config.allPVInfo)
       {
         m_tree->Branch(TString(intermediate_name) + "_PV_DCA_allPV", &allPV_intermediates_PV_DCA[i]);
         m_tree->Branch(TString(intermediate_name) + "_PV_DCA_StdDev_allPV", &allPV_intermediates_PV_DCA_StdDev[i]);
@@ -203,7 +203,7 @@ void KFParticle_nTuple::initializeBranches(PHCompositeNode* topNode)
       m_tree->Branch(TString(daughter_number) + "_PV_DCA_sig", &m_calculated_daughter_PV_dca_sig[i], TString(daughter_number) + "_PV_DCA_sig/F");
       m_tree->Branch(TString(daughter_number) + "_PV_DCA_sig_xy", &m_calculated_daughter_PV_dca_xy_sig[i], TString(daughter_number) + "_PV_DCA_sig_xy/F");
     }
-    if (m_get_all_PVs)
+    if (m_config.allPVInfo)
     {
       m_tree->Branch(TString(daughter_number) + "_PV_DCA_allPV", &allPV_daughter_PV_DCA[i]);
       m_tree->Branch(TString(daughter_number) + "_PV_DCA_StdDev_allPV", &allPV_daughter_PV_DCA_StdDev[i]);
@@ -231,22 +231,22 @@ void KFParticle_nTuple::initializeBranches(PHCompositeNode* topNode)
     m_tree->Branch(TString(daughter_number) + "_track_ID", &m_calculated_daughter_trid[i], TString(daughter_number) + "_track_ID/I");
     m_tree->Branch(TString(daughter_number) + "_PDG_ID", &m_calculated_daughter_pdgID[i], TString(daughter_number) + "_PDG_ID/I");
     m_tree->Branch(TString(daughter_number) + "_Covariance", &m_calculated_daughter_cov[i], TString(daughter_number) + "_Covariance[21]/F", 21);
-    if (m_get_dEdx)
+    if (m_config.dEdxInfo)
     {
-      m_tree->Branch(TString(daughter_number) + "_calculated_dEdx", &m_calculated_daughter_dedx[i], TString(daughter_number) + "_calculated_dEdx/F");  // m_get_dEdx defaults to false; run get_dEdx_info() to change this
+      m_tree->Branch(TString(daughter_number) + "_calculated_dEdx", &m_calculated_daughter_dedx[i], TString(daughter_number) + "_calculated_dEdx/F");  // m_config.dEdxInfo defaults to false; run get_dEdx_info() to change this
     }
     // m_tree->Branch(TString(daughter_number) + "_expected_pion_dEdx", &m_calculated_daughter_expected_dedx_pion[i], TString(daughter_number) + "_expected_pion_dEdx/F");
     // m_tree->Branch(TString(daughter_number) + "_expected_kaon_dEdx", &m_calculated_daughter_expected_dedx_kaon[i], TString(daughter_number) + "_expected_kaon_dEdx/F");
     // m_tree->Branch(TString(daughter_number) + "_expected_proton_dEdx", &m_calculated_daughter_expected_dedx_proton[i], TString(daughter_number) + "_expected_proton_dEdx/F");
-    if (m_calo_info)
+    if (m_config.caloInfo)
     {
       m_calo.initializeBranches(m_tree, i, daughter_number);
     }
-    if (m_truth_matching)
+    if (m_config.truthMatching)
     {
       m_truth.initializeBranches(m_tree, i, daughter_number, m_constrain_to_vertex_nTuple);
     }
-    if (m_detector_info)
+    if (m_config.detectorInfo)
     {
       m_detector.initializeBranches(m_tree, i, daughter_number);
     }
@@ -291,12 +291,12 @@ void KFParticle_nTuple::initializeBranches(PHCompositeNode* topNode)
     m_tree->Branch("primary_vertex_Covariance", &m_calculated_vertex_cov, "primary_vertex_Covariance[6]/F", 6);
   }
 
-  if (m_use_centrality_nTuple)
+  if (m_config.useCentrality)
   {
     m_tree->Branch("centrality_MBD", &m_centrality_mbd);
   }
 
-  if (m_get_all_PVs)
+  if (m_config.allPVInfo)
   {
     m_tree->Branch("all_primary_vertex_x", &allPV_x);
     m_tree->Branch("all_primary_vertex_y", &allPV_y);
@@ -316,7 +316,7 @@ void KFParticle_nTuple::initializeBranches(PHCompositeNode* topNode)
   m_tree->Branch("GL1_BCO", &m_event_bco, "GL1_BCO/L"); //adding for the current event BCO, not shifted
   m_tree->Branch("last_GL1_BCO", &m_last_event_bco, "last_GL1_BCO/L"); //BCO for the last event 
 
-  if (m_get_trigger_info)
+  if (m_config.triggerInfo)
   {
     m_trigger.initializeBranches(topNode, m_tree);
   }
@@ -384,7 +384,7 @@ void KFParticle_nTuple::fillBranch(PHCompositeNode* topNode,
   }
   //This is the setup for filling only the momentum calibration branches
   //It is placed here after the daughters are prepared but before the branches are filled
-  if (m_minimal_output)
+  if (m_config.lightweightNTuple)
   {
     fillMomentumCalibrationBranch(topNode, motherParticle, daughterArray);
     return;
@@ -528,29 +528,29 @@ void KFParticle_nTuple::fillBranch(PHCompositeNode* topNode,
     {
       bunchCrossingisZero = false;
     }
-    if (m_get_dEdx)
+    if (m_config.dEdxInfo)
     {
-      m_calculated_daughter_dedx[i] = m_tools->get_dEdx(topNode, daughterArray[i]);  // m_get_dEdx defaults to false; run get_dEdx_info() to change this
+      m_calculated_daughter_dedx[i] = m_tools->get_dEdx(topNode, daughterArray[i]);  // m_config.dEdxInfo defaults to false; run get_dEdx_info() to change this
     }
     // m_calculated_daughter_expected_dedx_pion[i] = m_tools->get_dEdx_fitValue((Int_t) daughterArray[i].GetQ() * daughterArray[i].GetP(), 211);
     // m_calculated_daughter_expected_dedx_kaon[i] = m_tools->get_dEdx_fitValue((Int_t) daughterArray[i].GetQ() * daughterArray[i].GetP(), 321);
     // m_calculated_daughter_expected_dedx_proton[i] = m_tools->get_dEdx_fitValue((Int_t) daughterArray[i].GetQ() * daughterArray[i].GetP(), 2212);
 
     bool tempEMCalmatch = false;
-    if (m_calo_info)
+    if (m_config.caloInfo)
     {
       m_calo.fill(topNode, daughterArray[i], i, tempEMCalmatch, vertex_fillbranch);
-      if (m_require_track_emcal_match && !tempEMCalmatch)
+      if (m_config.requireTrackEMCalMatch && !tempEMCalmatch)
       {
         isTrackEMCalmatch = false;
       }
     }
-    if (m_truth_matching)
+    if (m_config.truthMatching)
     {
       m_truth.fill(topNode, daughterArray[i], i, vertex_fillbranch, m_constrain_to_vertex_nTuple);
       m_truth.getHepMCInfo(topNode, daughterArray[i], i);
     }
-    if (m_detector_info)
+    if (m_config.detectorInfo)
     {
       m_detector.fill(topNode, daughterArray[i], i);
     }
@@ -596,7 +596,7 @@ void KFParticle_nTuple::fillBranch(PHCompositeNode* topNode,
     }
   }
 
-  if (m_get_all_PVs)
+  if (m_config.allPVInfo)
   {
     std::vector<KFParticle> sortedDaughterVector;
     sortedDaughterVector.reserve(m_num_tracks_nTuple);
@@ -677,7 +677,7 @@ void KFParticle_nTuple::fillBranch(PHCompositeNode* topNode,
     }
   }
 
-  if (m_use_centrality_nTuple)
+  if (m_config.useCentrality)
   {
     m_CentInfo = findNode::getClass<CentralityInfo>(topNode, "CentralityInfo");
     if (!m_CentInfo)
@@ -719,19 +719,19 @@ void KFParticle_nTuple::fillBranch(PHCompositeNode* topNode,
   }
 
   // Each helper empties the per-candidate vectors it filled
-  if (m_calo_info)
+  if (m_config.caloInfo)
   {
     m_calo.clear(m_num_tracks_nTuple);
   }
-  if (m_truth_matching)
+  if (m_config.truthMatching)
   {
     m_truth.clear(m_num_tracks_nTuple);
   }
-  if (m_detector_info)
+  if (m_config.detectorInfo)
   {
     m_detector.clear(m_num_tracks_nTuple);
   }
-  if (m_get_all_PVs)
+  if (m_config.allPVInfo)
   {
     clearAllPVInfo();
   }
@@ -826,7 +826,7 @@ bool KFParticle_nTuple::fillConditionMet() const
 {
   // Fill if this is a track-only analysis, if track-calo matching is not required,
   // or otherwise only if the track was matched to an EMCal cluster
-  return !m_calo_info || !m_require_track_emcal_match || isTrackEMCalmatch;
+  return !m_config.caloInfo || !m_config.requireTrackEMCalMatch || isTrackEMCalmatch;
 }
 
 void KFParticle_nTuple::allPVInfo(PHCompositeNode *topNode,

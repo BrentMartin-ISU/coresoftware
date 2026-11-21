@@ -41,7 +41,7 @@ void KFParticle_caloInfo::initializeBranches(TTree *m_tree, int daughter_id, con
   m_tree->Branch((daughter_number + "_EMCAL_cluster_prob").c_str(), &detector_emcal_cluster_prob[daughter_id], (daughter_number + "_EMCAL_cluster_prob/F").c_str());
 
   // Detailed calo info
-  if (m_get_detailed_calorimetry)
+  if (m_config.detailedCalorimetry)
   {
     m_tree->Branch((daughter_number + "_EMCAL_projection_z").c_str(),   &detector_emcal_projection_z[daughter_id], (daughter_number + "_EMCAL_projection_z/F").c_str());
     m_tree->Branch((daughter_number + "_EMCAL_projection_eta").c_str(), &detector_emcal_projection_eta[daughter_id], (daughter_number + "_EMCAL_projection_eta/F").c_str());
@@ -54,7 +54,7 @@ void KFParticle_caloInfo::initializeBranches(TTree *m_tree, int daughter_id, con
   }
 
   // 5x5 cell info
-  if (m_get_calo_5x5_cell_info)
+  if (m_config.calo5x5CellInfo)
   {
     m_tree->Branch((daughter_number + "_EMCAL_5x5Cell_binPhi").c_str(), &detector_emcal_5x5Cell_Phi[daughter_id]);
     m_tree->Branch((daughter_number + "_EMCAL_5x5Cell_binEta").c_str(), &detector_emcal_5x5Cell_Eta[daughter_id]);
@@ -136,7 +136,7 @@ void KFParticle_caloInfo::fill(PHCompositeNode *topNode, const KFParticle &daugh
   }
 
   // Radii for track projections
-  const double caloRadiusEMCal = m_emcal_radius_user;  // Use function set_emcal_radius_user(float set_variable) to set this in your Fun4All macro
+  const double caloRadiusEMCal = m_config.emcalRadius;  // Use function set_emcal_radius_user(float set_variable) to set this in your Fun4All macro
 
   // Create variables and containers etc.
   bool is_match;
@@ -148,7 +148,7 @@ void KFParticle_caloInfo::fill(PHCompositeNode *topNode, const KFParticle &daugh
   SvtxTrackState *thisState = track->get_state(caloRadiusEMCal);
 
   // Print out additional track states with high verbosity:
-  if(m_track2caloVerbosity > 10 && thisState != nullptr)
+  if(m_config.track2CaloVerbosity > 10 && thisState != nullptr)
   {
     thisState->identify();
     std::cout << "size states " << track->size_states() << std::endl;
@@ -253,7 +253,7 @@ void KFParticle_caloInfo::fill(PHCompositeNode *topNode, const KFParticle &daugh
 
       // CUT -- CLUSTER ENERGY
       float cluster_energy = E_vec_cluster.mag();
-      if (cluster_energy < m_emcal_e_low_cut)
+      if (cluster_energy < m_config.emcalEnergyLowCut)
       {
         continue;
       }
@@ -261,7 +261,7 @@ void KFParticle_caloInfo::fill(PHCompositeNode *topNode, const KFParticle &daugh
       // CUT -- DPHI
       float clPhi = E_vec_cluster.phi();
       float dphi = PiRange(_track_phi_emc - clPhi);
-      if (dphi > m_dphi_cut_high || dphi < m_dphi_cut_low)
+      if (dphi > m_config.emcalDPhiCutHigh || dphi < m_config.emcalDPhiCutLow)
       {
         continue;
       }
@@ -269,7 +269,7 @@ void KFParticle_caloInfo::fill(PHCompositeNode *topNode, const KFParticle &daugh
       // CUT -- DZ
       float clZ = cluster->get_z() - vz;
       float dz = _track_z_emc - clZ;
-      if (dz > m_dz_cut_high || dz < m_dz_cut_low)
+      if (dz > m_config.emcalDZCutHigh || dz < m_config.emcalDZCutLow)
       {
         continue;
       }
@@ -319,7 +319,7 @@ void KFParticle_caloInfo::fill(PHCompositeNode *topNode, const KFParticle &daugh
       is_match = true;
 
       // Print outs
-      if(m_track2caloVerbosity > 5)
+      if(m_config.track2CaloVerbosity > 5)
       {
         std::cout << "**********DELTA INFORMATION************" << std::endl;
         std::cout << "dphi = " << dphi << std::endl;
@@ -358,7 +358,7 @@ void KFParticle_caloInfo::fill(PHCompositeNode *topNode, const KFParticle &daugh
     detector_emcal_cluster_prob[daughter_id] = std::numeric_limits<float>::quiet_NaN();
 
     // Detailed Calo
-    if (m_get_detailed_calorimetry)
+    if (m_config.detailedCalorimetry)
     {
       detector_emcal_projection_z[daughter_id] = std::numeric_limits<float>::quiet_NaN();
       detector_emcal_projection_eta[daughter_id] = std::numeric_limits<float>::quiet_NaN();
@@ -371,7 +371,7 @@ void KFParticle_caloInfo::fill(PHCompositeNode *topNode, const KFParticle &daugh
     }
 
     // 5x5 cell
-    if (m_get_calo_5x5_cell_info)
+    if (m_config.calo5x5CellInfo)
     {
       // Fill with nothing -- no match found, so vectors should be empty !
     }
@@ -405,7 +405,7 @@ void KFParticle_caloInfo::fill(PHCompositeNode *topNode, const KFParticle &daugh
     detector_emcal_cluster_prob[daughter_id] = v_emcal_cluster_prob[index];
 
     // Detailed Calo
-    if (m_get_detailed_calorimetry)
+    if (m_config.detailedCalorimetry)
     {
       detector_emcal_projection_z[daughter_id] = projection_z_emc;
       detector_emcal_projection_eta[daughter_id] = projection_eta_emc;
@@ -418,7 +418,7 @@ void KFParticle_caloInfo::fill(PHCompositeNode *topNode, const KFParticle &daugh
     }
 
     // 5x5 cell
-    if(m_get_calo_5x5_cell_info)
+    if(m_config.calo5x5CellInfo)
     {
       detector_emcal_5x5Cell_Phi[daughter_id] = v_detector_emcal_5x5Cell_Phi;
       detector_emcal_5x5Cell_Eta[daughter_id] = v_detector_emcal_5x5Cell_Eta;
@@ -815,7 +815,7 @@ void KFParticle_caloInfo::Get5x5CellInfo(
       E5x5+=energytmp;
       v_Tower_E.push_back(energytmp);
        // Store in vectors
-      if(m_get_calo_5x5_cell_info)
+      if(m_config.calo5x5CellInfo)
       {
         v_emcal_5x5Cell_Phi.push_back(iphi);
         v_emcal_5x5Cell_Eta.push_back(jeta);
@@ -841,7 +841,7 @@ void KFParticle_caloInfo::clear(int nTracks)
   for (int i = 0; i < nTracks; ++i)
   {
     // Detailed Calo
-    if (m_get_calo_5x5_cell_info)
+    if (m_config.calo5x5CellInfo)
     {
       detector_emcal_5x5Cell_Phi[i].clear();
       detector_emcal_5x5Cell_Eta[i].clear();

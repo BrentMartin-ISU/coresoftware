@@ -256,7 +256,7 @@ class KFParticle_sPHENIX : public SubsysReco, public KFParticle_nTuple, public K
 
   void useCentrality(bool use = true)
   {
-    m_use_centrality_nTuple = use;
+    m_config.useCentrality = use;
   }
 
   void dontUseGlobalVertex(bool dont = true) { m_dont_use_global_vertex = dont; }
@@ -392,32 +392,70 @@ class KFParticle_sPHENIX : public SubsysReco, public KFParticle_nTuple, public K
 
   void setContainerName(const std::string &name) { m_config.containerName = name; }
 
-  void saveOutput(bool save = true) { m_save_output = save; }
+  void saveOutput(bool save = true) { m_config.saveOutput = save; }
 
-  void setOutputName(const std::string &name) { m_outfile_name = name; }
+  void setOutputName(const std::string &name) { m_config.outputName = name; }
 
-  void doTruthMatching(bool truth = true) { m_truth_matching = truth; }
+  void doTruthMatching(bool truth = true) { m_config.truthMatching = truth; }
 
-  void getTriggerInfo(bool get = true) { m_get_trigger_info = get; }
+  void getTriggerInfo(bool get = true) { m_config.triggerInfo = get; }
 
-  void getDetectorInfo(bool detinfo = true) { m_detector_info = detinfo; }
+  void getDetectorInfo(bool detinfo = true) { m_config.detectorInfo = detinfo; }
 
-  void getCaloInfo(bool caloinfo = true) { m_calo_info = caloinfo; }
+  void getCaloInfo(bool caloinfo = true) { m_config.caloInfo = caloinfo; }
 
-  void requireTrackEMCalMatch(bool require = true) { m_require_track_emcal_match = require; }
+  void requireTrackEMCalMatch(bool require = true) { m_config.requireTrackEMCalMatch = require; }
 
-  void getAllPVInfo(bool pvinfo = true) { m_get_all_PVs = pvinfo; }
+  void getAllPVInfo(bool pvinfo = true) { m_config.allPVInfo = pvinfo; }
 
   // QA output is a sub-mode of the lightweight nTuple
   void saveLightweightNTuple(bool minimal = true)
   {
-    m_minimal_output = minimal;
+    m_config.lightweightNTuple = minimal;
     if (!minimal)
     {
-      m_minimal_output_to_qa = false;
+      m_config.lightweightNTupleToQA = false;
     }
   }
-  void saveLightweightNTupleToQA(bool minimal = true) { m_minimal_output = m_minimal_output_to_qa = minimal; }  // also turns on the lightweight nTuple
+  void saveLightweightNTupleToQA(bool minimal = true) { m_config.lightweightNTuple = m_config.lightweightNTupleToQA = minimal; }  // also turns on the lightweight nTuple
+
+  /// Functions to get detailed subsystem information
+  void GetDetailedTracking(bool set_variable = true)
+  {
+    m_config.detailedTracking = set_variable;
+    if (set_variable)
+    {
+      m_config.detectorInfo = true;
+    }
+  }
+  // Function that will add additional calorimetry info to the output TTree
+  void GetDetailedCalorimetry(bool set_variable = true)
+  {
+    m_config.detailedCalorimetry = set_variable;
+    if (set_variable)
+    {
+      m_config.caloInfo = true;
+    }
+  }
+  // Function that will add info from the 5x5 cell of towers around the cluster center to the output TTree
+  void GetCalo5x5CellInfo(bool set_variable = true)
+  {
+    m_config.calo5x5CellInfo = set_variable;
+    if (set_variable)
+    {
+      m_config.caloInfo = true;
+    }
+  }
+  void get_dEdx_info(bool set_variable = true) { m_config.dEdxInfo = set_variable; }
+
+  // Track-to-EMCal matching
+  void setVerbosityTrack2Calo(int verb) { m_config.track2CaloVerbosity = verb; }
+  void set_emcal_radius_user(float set_variable) { m_config.emcalRadius = set_variable; }
+  void set_emcal_e_low_cut(float set_variable) { m_config.emcalEnergyLowCut = set_variable; }
+  void set_dphi_cut_low(float set_variable) { m_config.emcalDPhiCutLow = set_variable; }
+  void set_dphi_cut_high(float set_variable) { m_config.emcalDPhiCutHigh = set_variable; }
+  void set_dz_cut_low(float set_variable) { m_config.emcalDZCutLow = set_variable; }
+  void set_dz_cut_high(float set_variable) { m_config.emcalDZCutHigh = set_variable; }
 
   void bunchCrossingZeroOnly(bool bcZeroOnly = true) { m_bunch_crossing_zero_only = bcZeroOnly; }
 
@@ -460,7 +498,6 @@ class KFParticle_sPHENIX : public SubsysReco, public KFParticle_nTuple, public K
   KFParticle_Config m_config;  // the only writable configuration; base classes hold a const reference to it
   bool m_has_intermediates_sPHENIX;
   bool m_constrain_to_vertex_sPHENIX;
-  bool m_save_output;
   int candidateCounter = 0;
   //Adding member variables for BCO matching
   uint64_t m_this_event_bco{0};
@@ -468,7 +505,6 @@ class KFParticle_sPHENIX : public SubsysReco, public KFParticle_nTuple, public K
   uint64_t m_prev_event_bco{0};
   int64_t m_prev_runNumber{-1};
   int64_t m_prev_eventNumber{-1}; //till here
-  std::string m_outfile_name;
   TFile *m_outfile;
   std::string m_decayDescriptor;
   std::string m_magField = "FIELDMAP_TRACKING";

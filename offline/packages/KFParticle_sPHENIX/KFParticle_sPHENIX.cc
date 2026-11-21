@@ -60,12 +60,11 @@ KFParticle_sPHENIX::KFParticle_sPHENIX() : KFParticle_sPHENIX("KFPARTICLE"){}
 
 KFParticle_sPHENIX::KFParticle_sPHENIX(const std::string &name)
   : SubsysReco(name)
-  , KFParticle_DST(m_config)  // binds only; m_config is constructed before any of it is read
+  , KFParticle_nTuple(m_config)  // binds only; m_config is constructed before any of it is read
+  , KFParticle_DST(m_config)  // same
   , KFParticle_eventReconstruction(m_config)  // same
   , m_has_intermediates_sPHENIX(false)
   , m_constrain_to_vertex_sPHENIX(false)
-  , m_save_output(true)
-  , m_outfile_name("outputData.root")
   , m_outfile(nullptr)
 {
   setToolsInstance(static_cast<KFParticle_Tools *>(this));
@@ -77,9 +76,9 @@ int KFParticle_sPHENIX::Init(PHCompositeNode *topNode)
   m_qa_tree_path = Name() + "/DecayTree";  // one directory per module so several KFParticle modules do not clash
   m_verbosity_nTuple = Verbosity();
   
-  if (m_save_output && !m_minimal_output_to_qa && Verbosity() >= VERBOSITY_SOME)
+  if (m_config.saveOutput && !m_config.lightweightNTupleToQA && Verbosity() >= VERBOSITY_SOME)
   {
-    std::cout << "Output nTuple: " << m_outfile_name << std::endl;
+    std::cout << "Output nTuple: " << m_config.outputName << std::endl;
   }
 
   if (m_config.saveDST)
@@ -228,18 +227,18 @@ int KFParticle_sPHENIX::process_event(PHCompositeNode *topNode)
   for (unsigned int i = 0; i < mother.size(); ++i)
   {
     
-    if (m_save_output && getCandidateCounter() == 0)
+    if (m_config.saveOutput && getCandidateCounter() == 0)
     {
-      if (!m_minimal_output_to_qa)
+      if (!m_config.lightweightNTupleToQA)
       {
-        m_outfile = new TFile(m_outfile_name.c_str(), "RECREATE");
+        m_outfile = new TFile(m_config.outputName.c_str(), "RECREATE");
       }
       initializeBranches(topNode);
     }
 
     incrementCandidateCounter();
 
-    if (m_save_output)
+    if (m_config.saveOutput)
     {
       set_event_bcos(m_this_event_bco, m_last_event_bco); //filling nTuple for BCO Matching
       fillBranch(topNode, mother[i], vertex_kfparticle[i], daughters[i], intermediates[i]);
@@ -266,7 +265,7 @@ int KFParticle_sPHENIX::End(PHCompositeNode * /*topNode*/)
 {
   std::cout << "KFParticle_sPHENIX object " << Name() << " finished. Number of candidates: " << getCandidateCounter() << std::endl;
 
-  if (m_save_output && !m_minimal_output_to_qa && getCandidateCounter() != 0)
+  if (m_config.saveOutput && !m_config.lightweightNTupleToQA && getCandidateCounter() != 0)
   {
     m_outfile->Write();
     m_outfile->Close();

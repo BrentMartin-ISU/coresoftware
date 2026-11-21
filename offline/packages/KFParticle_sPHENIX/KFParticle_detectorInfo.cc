@@ -42,7 +42,7 @@ namespace
 
 void KFParticle_detectorInfo::initializeBranches(TTree *m_tree, int daughter_id, const std::string &daughter_number)
 {
-  if (m_get_detailed_tracking)
+  if (m_config.detailedTracking)
   {
     m_tree->Branch((daughter_number + "_residual_x").c_str(), &residual_x[daughter_id]);
     m_tree->Branch((daughter_number + "_residual_y").c_str(), &residual_y[daughter_id]);
@@ -63,7 +63,7 @@ void KFParticle_detectorInfo::initializeSubDetectorBranches(TTree *m_tree, const
   const std::string branchName = daughter_number + "_" + detectorName;
   if (detectorName == "MVTX")
   {
-    if (m_get_detailed_tracking)
+    if (m_config.detailedTracking)
     {
       m_tree->Branch((branchName + "_staveID").c_str(), &mvtx_staveID[daughter_id]);
       m_tree->Branch((branchName + "_chipID").c_str(), &mvtx_chipID[daughter_id]);
@@ -73,7 +73,7 @@ void KFParticle_detectorInfo::initializeSubDetectorBranches(TTree *m_tree, const
   }
   else if (detectorName == "INTT")
   {
-    if (m_get_detailed_tracking)
+    if (m_config.detailedTracking)
     {
       m_tree->Branch((branchName + "_ladderZID").c_str(), &intt_ladderZID[daughter_id]);
       m_tree->Branch((branchName + "_ladderPhiID").c_str(), &intt_ladderPhiID[daughter_id]);
@@ -83,7 +83,7 @@ void KFParticle_detectorInfo::initializeSubDetectorBranches(TTree *m_tree, const
   }
   else if (detectorName == "TPC")
   {
-    if (m_get_detailed_tracking)
+    if (m_config.detailedTracking)
     {
       m_tree->Branch((branchName + "_sectorID").c_str(), &tpc_sectorID[daughter_id]);
       m_tree->Branch((branchName + "_side").c_str(), &tpc_side[daughter_id]);
@@ -172,7 +172,7 @@ void KFParticle_detectorInfo::fill(PHCompositeNode *topNode, const KFParticle &d
         ++detector_nHits_INTT[daughter_id];
       }
 
-      if (m_get_detailed_tracking)
+      if (m_config.detailedTracking)
       {
         mvtx_staveID[daughter_id].push_back(staveId);
         mvtx_chipID[daughter_id].push_back(chipId);
@@ -212,7 +212,7 @@ void KFParticle_detectorInfo::fill(PHCompositeNode *topNode, const KFParticle &d
         ++detector_nHits_TPOT[daughter_id];
       }
 
-      if (m_get_detailed_tracking)
+      if (m_config.detailedTracking)
       {
         mvtx_staveID[daughter_id].push_back(staveId);
         mvtx_chipID[daughter_id].push_back(chipId);
@@ -240,7 +240,7 @@ void KFParticle_detectorInfo::fill(PHCompositeNode *topNode, const KFParticle &d
       }
       auto global = geometry->getGlobalPosition(stateckey, cluster);
 
-      if (m_get_detailed_tracking)
+      if (m_config.detailedTracking)
       {
         residual_x[daughter_id].push_back(global.x() - tstate->get_x());
         residual_y[daughter_id].push_back(global.y() - tstate->get_y());

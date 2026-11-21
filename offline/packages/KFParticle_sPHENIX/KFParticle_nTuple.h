@@ -1,6 +1,7 @@
 #ifndef KFPARTICLESPHENIX_KFPARTICLENTUPLE_H
 #define KFPARTICLESPHENIX_KFPARTICLENTUPLE_H
 
+#include "KFParticle_Config.h"
 #include "KFParticle_caloInfo.h"
 #include "KFParticle_detectorInfo.h"
 #include "KFParticle_triggerInfo.h"
@@ -22,8 +23,13 @@ class KFParticle_Tools;
 class KFParticle_nTuple
 {
  public:
-  /// Constructor
-  KFParticle_nTuple() = default;
+  /// Constructor; binds the configuration only (the owner's instance is not constructed yet)
+  explicit KFParticle_nTuple(const KFParticle_Config &config)
+    : m_config(config)
+    , m_detector(config)
+    , m_calo(config)
+  {
+  }
 
   /// Destructor
   virtual ~KFParticle_nTuple() = default;
@@ -61,78 +67,27 @@ class KFParticle_nTuple
     m_calo.setToolsInstance(tools);
   }
 
-  /// Functions to get detailed subsystem information
-  void GetDetailedTracking(bool set_variable = true)
-  {
-    m_detector.setDetailedTracking(set_variable);
-    if (set_variable)
-    {
-      m_detector_info = true;
-    }
-  }
-  // Function that will add additional calorimetry info to the output TTree
-  void GetDetailedCalorimetry(bool set_variable = true)
-  {
-    m_calo.setDetailedCalorimetry(set_variable);
-    if (set_variable)
-    {
-      m_calo_info = true;
-    }
-  }
-  // Function that will add info from the 5x5 cell of towers around the cluster center to the output TTree
-  void GetCalo5x5CellInfo(bool set_variable = true) 
-  {
-    m_calo.set5x5CellInfo(set_variable);
-    if (set_variable)
-    {
-      m_calo_info = true;
-    }
-  }
-  // Track-to-EMCal matching settings, passed on to the calorimeter helper
-  void setVerbosityTrack2Calo(int verb) { m_calo.setVerbosityTrack2Calo(verb); }
-  void set_emcal_radius_user(float set_variable) { m_calo.set_emcal_radius_user(set_variable); }
-  void set_emcal_e_low_cut(float set_variable) { m_calo.set_emcal_e_low_cut(set_variable); }
-  void set_dphi_cut_low(float set_variable) { m_calo.set_dphi_cut_low(set_variable); }
-  void set_dphi_cut_high(float set_variable) { m_calo.set_dphi_cut_high(set_variable); }
-  void set_dz_cut_low(float set_variable) { m_calo.set_dz_cut_low(set_variable); }
-  void set_dz_cut_high(float set_variable) { m_calo.set_dz_cut_high(set_variable); }
-
-  void get_dEdx_info(bool set_variable = true)
-  {
-    m_get_dEdx = set_variable;
-  }
-
  protected:
   bool m_has_intermediates_nTuple{false};
   bool m_extrapolateTracksToSV_nTuple{true};
   bool m_constrain_to_vertex_nTuple{false};
-  bool m_get_all_PVs{false};
   int m_num_tracks_nTuple{0};
   int m_num_intermediate_states_nTuple{0};
   // int m_num_tracks_from_intermediate_nTuple[99];
   std::vector<int> m_num_tracks_from_intermediate_nTuple;
-  bool m_truth_matching{false};
-  bool m_get_trigger_info{false};
-  bool m_detector_info{false};
-  bool m_calo_info{false};
-  bool m_get_dEdx{false};
-  bool m_require_track_emcal_match{false};
   bool isTrackEMCalmatch{true};
   std::string m_mother_name;
   // std::string m_vtx_map_node_name_nTuple;
-  bool m_use_intermediate_name{false};
   bool m_get_charge_conjugate_nTuple{false};
   bool m_use_fake_pv_nTuple{false};
-  bool m_minimal_output{false};
-  bool m_minimal_output_to_qa{false};
   std::string m_qa_tree_path{"DecayTree"};  // name (optionally dir/name) of the tree in the QA histogram manager
-  bool m_momentum_calibration_output{false};
-  bool m_use_centrality_nTuple{false};
   std::vector<std::string> m_intermediate_name_ntuple;
   int m_verbosity_nTuple{0};
 
  private:
   static constexpr int max_tracks{KFParticle_utilities::max_tracks};
+
+  const KFParticle_Config &m_config;
 
   // The single KFParticle_Tools instance that holds the user's settings (vertex/track map names,
   // MBD vs SVTX vertex, global vertex use, ...). Set once by KFParticle_sPHENIX so that this class
