@@ -500,14 +500,14 @@ int KFParticle_sPHENIX::parseDecayDescriptor()
 void KFParticle_sPHENIX::getField()
 {
   //This sweeps the sPHENIX magnetic field map from some point radially then grabs the first event that passes the selection
-  m_magField = std::filesystem::exists(m_magField) ? m_magField : CDBInterface::instance()->getUrl(m_magField);
+  m_config.magFieldFile = std::filesystem::exists(m_config.magFieldFile) ? m_config.magFieldFile : CDBInterface::instance()->getUrl(m_config.magFieldFile);
 
   if (Verbosity() > 0)
   {
-    std::cout << PHWHERE << ": using fieldmap : " << m_magField << std::endl;
+    std::cout << PHWHERE << ": using fieldmap : " << m_config.magFieldFile << std::endl;
   }
 
-  TFile *fin = new TFile(m_magField.c_str());
+  TFile *fin = new TFile(m_config.magFieldFile.c_str());
   TTree *fieldmap = (TTree *) fin->Get("fieldmap");
 
   float Bz = 0.;
