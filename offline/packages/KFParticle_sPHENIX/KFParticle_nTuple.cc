@@ -244,7 +244,7 @@ void KFParticle_nTuple::initializeBranches(PHCompositeNode* topNode)
     }
     if (m_truth_matching)
     {
-      initializeTruthBranches(m_tree, i, daughter_number, m_constrain_to_vertex_nTuple);
+      m_truth.initializeBranches(m_tree, i, daughter_number, m_constrain_to_vertex_nTuple);
     }
     if (m_detector_info)
     {
@@ -547,8 +547,8 @@ void KFParticle_nTuple::fillBranch(PHCompositeNode* topNode,
     }
     if (m_truth_matching)
     {
-      fillTruthBranch(topNode, m_tree, daughterArray[i], i, vertex_fillbranch, m_constrain_to_vertex_nTuple);
-      getHepMCInfo(topNode, m_tree, daughterArray[i], i);
+      m_truth.fill(topNode, daughterArray[i], i, vertex_fillbranch, m_constrain_to_vertex_nTuple);
+      m_truth.getHepMCInfo(topNode, daughterArray[i], i);
     }
     if (m_detector_info)
     {
@@ -722,6 +722,7 @@ void KFParticle_nTuple::fillBranch(PHCompositeNode* topNode,
   {
     clearVectors();
     m_detector.clear(m_num_tracks_nTuple);
+    m_truth.clear(m_num_tracks_nTuple);
   }
 
   if (m_trigger_info_available)

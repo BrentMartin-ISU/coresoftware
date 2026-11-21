@@ -12,39 +12,17 @@
 #include <vector>
 
 class PHCompositeNode;
-class PHG4Particle;
-class PHG4VtxPoint;
-class PHG4TruthInfoContainer;
-class PHHepMCGenEvent;
-class PHHepMCGenEventMap;
-class MbdVertexMap;
-class MbdVertex;
 class RawCluster;
 class RawClusterContainer;
 class RawTower;
 class RawTowerContainer;
 class RawTowerGeomContainer;
-class SvtxClusterEval;
-class SvtxEvalStack;
-class SvtxHitEval;
 class SvtxTrack;
-class SvtxTrackEval;
 class SvtxTrackMap;
-class SvtxTruthEval;
-class SvtxVertexMap;
-class SvtxVertex;
-class SvtxVertexEval;
 class TowerInfoContainer;
 class TTree;
 class KFParticle;
 class KFParticle_Tools;
-class GlobalVertex;
-class GlobalVertexMap;
-
-namespace HepMC
-{
-  class GenParticle;
-}
 
 class KFParticle_truthAndDetTools
 {
@@ -52,16 +30,6 @@ class KFParticle_truthAndDetTools
   KFParticle_truthAndDetTools() = default;  // Constructor
 
   virtual ~KFParticle_truthAndDetTools() = default;
-
-  static GlobalVertex *getVertex(unsigned int vertex_id, GlobalVertexMap *vertexmap);
-  PHG4Particle *getTruthTrack(SvtxTrack *thisTrack, PHCompositeNode *topNode);
-
-  void initializeTruthBranches(TTree *m_tree, int daughter_id, const std::string &daughter_number, bool m_constrain_to_vertex_truthMatch);
-  void fillTruthBranch(PHCompositeNode *topNode, TTree *m_tree, const KFParticle &daughter, int daughter_id, const KFParticle &vertex, bool m_constrain_to_vertex_truthMatch);
-
-  void fillGeant4Branch(PHG4Particle *particle, int daughter_id);
-  void fillHepMCBranch(HepMC::GenParticle *particle, int daughter_id);
-  int getHepMCInfo(PHCompositeNode *topNode, TTree *m_tree, const KFParticle &daughter, int daughter_id);
 
   virtual void initializeCaloBranches(TTree *m_tree, int daughter_id, const std::string &daughter_number);
   virtual void fillCaloBranch(PHCompositeNode *topNode, TTree *m_tree, const KFParticle &daughter, int daughter_id, bool &isTrackEMCalmatch, const KFParticle &vertex);
@@ -110,23 +78,8 @@ class KFParticle_truthAndDetTools
   // and KFParticle_nTuple never work from a second, default-configured copy.
   KFParticle_Tools *m_tools{nullptr};
 
-  SvtxEvalStack *m_svtx_evalstack{nullptr};
-  SvtxClusterEval *clustereval{nullptr};
-  SvtxHitEval *hiteval{nullptr};
-  SvtxTrackEval *trackeval{nullptr};
-  SvtxTruthEval *trutheval{nullptr};
-  SvtxVertexEval *vertexeval{nullptr};
-
   SvtxTrackMap *dst_trackmap{nullptr};
   SvtxTrack *track{nullptr};
-
-  PHG4Particle *g4particle{nullptr};
-  PHG4VtxPoint *g4vertex_point{nullptr};
-
-  MbdVertexMap *dst_mbdvertexmap{nullptr};
-
-  SvtxVertexMap *dst_vertexmap{nullptr};
-  SvtxVertex *vertex{nullptr};
 
   int m_num_tracks_nTuple{0};
   int m_num_intermediate_states_nTuple{0};
@@ -144,29 +97,6 @@ class KFParticle_truthAndDetTools
   float m_dphi_cut_high{0.15};
   float m_dz_cut_low{-10};
   float m_dz_cut_high{10};
-
-  float m_true_daughter_vertex_x[max_tracks]{std::numeric_limits<float>::quiet_NaN()};
-  float m_true_daughter_vertex_y[max_tracks]{std::numeric_limits<float>::quiet_NaN()};
-  float m_true_daughter_vertex_z[max_tracks]{std::numeric_limits<float>::quiet_NaN()};
-  float m_true_daughter_ip[max_tracks]{std::numeric_limits<float>::quiet_NaN()};
-  float m_true_daughter_ip_xy[max_tracks]{std::numeric_limits<float>::quiet_NaN()};
-  float m_true_daughter_px[max_tracks]{std::numeric_limits<float>::quiet_NaN()};
-  float m_true_daughter_py[max_tracks]{std::numeric_limits<float>::quiet_NaN()};
-  float m_true_daughter_pz[max_tracks]{std::numeric_limits<float>::quiet_NaN()};
-  float m_true_daughter_p[max_tracks]{std::numeric_limits<float>::quiet_NaN()};
-  float m_true_daughter_pt[max_tracks]{std::numeric_limits<float>::quiet_NaN()};
-  int m_true_daughter_id[max_tracks]{std::numeric_limits<int>::quiet_NaN()};
-  float m_true_daughter_pv_x[max_tracks]{std::numeric_limits<float>::quiet_NaN()};
-  float m_true_daughter_pv_y[max_tracks]{std::numeric_limits<float>::quiet_NaN()};
-  float m_true_daughter_pv_z[max_tracks]{std::numeric_limits<float>::quiet_NaN()};
-
-  std::vector<int> m_true_daughter_track_history_PDG_ID[max_tracks];
-  std::vector<float> m_true_daughter_track_history_PDG_mass[max_tracks];
-  std::vector<float> m_true_daughter_track_history_px[max_tracks];
-  std::vector<float> m_true_daughter_track_history_py[max_tracks];
-  std::vector<float> m_true_daughter_track_history_pz[max_tracks];
-  std::vector<float> m_true_daughter_track_history_pE[max_tracks];
-  std::vector<float> m_true_daughter_track_history_pT[max_tracks];
 
   // Vectors for calo info
   float detector_emcal_deltaphi[max_tracks]{std::numeric_limits<float>::quiet_NaN()};
@@ -219,10 +149,6 @@ class KFParticle_truthAndDetTools
   std::vector<float> allPV_daughter_PV_DCA_StdDev[max_tracks];
   std::vector<float> allPV_intermediates_PV_DCA[max_tracks];
   std::vector<float> allPV_intermediates_PV_DCA_StdDev[max_tracks];
-
-  PHG4TruthInfoContainer *m_truthinfo{nullptr};
-  PHHepMCGenEventMap *m_geneventmap{nullptr};
-  PHHepMCGenEvent *m_genevt{nullptr};
 };
 
 #endif  // KFPARTICLESPHENIX_KFPARTICLETRUTHANDDETTOOLS_H

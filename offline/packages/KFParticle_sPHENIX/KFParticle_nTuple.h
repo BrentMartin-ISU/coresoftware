@@ -4,6 +4,7 @@
 #include "KFParticle_detectorInfo.h"
 #include "KFParticle_triggerInfo.h"
 #include "KFParticle_truthAndDetTools.h"
+#include "KFParticle_truthInfo.h"
 
 #include <KFParticle.h>
 
@@ -54,6 +55,7 @@ class KFParticle_nTuple : public KFParticle_truthAndDetTools, public KFParticle_
   {
     KFParticle_truthAndDetTools::setToolsInstance(tools);
     m_detector.setToolsInstance(tools);
+    m_truth.setToolsInstance(tools);
   }
 
   /// Functions to get detailed subsystem information
@@ -118,6 +120,7 @@ class KFParticle_nTuple : public KFParticle_truthAndDetTools, public KFParticle_
 
  private:
   KFParticle_detectorInfo m_detector;
+  KFParticle_truthInfo m_truth;
 
   // This fills a reduced output meant for the ML momentum calibration
   // It contains mother mass/pT/eta/phi/PID, daughter pT/pTErr/eta/phi/charge/PID/covariance and runNumber only
