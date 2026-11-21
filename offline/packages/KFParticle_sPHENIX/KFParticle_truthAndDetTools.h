@@ -1,6 +1,8 @@
 #ifndef KFPARTICLESPHENIX_KFPARTICLETRUTHANDDETTOOLS_H
 #define KFPARTICLESPHENIX_KFPARTICLETRUTHANDDETTOOLS_H
 
+#include "KFParticle_utilities.h"
+
 // Cluster
 #include <calobase/RawClusterDefs.h>
 
@@ -9,7 +11,6 @@
 #include <string>
 #include <vector>
 
-class ActsGeometry;
 class PHCompositeNode;
 class PHG4Particle;
 class PHG4VtxPoint;
@@ -34,7 +35,6 @@ class SvtxVertexMap;
 class SvtxVertex;
 class SvtxVertexEval;
 class TowerInfoContainer;
-class TrkrClusterContainer;
 class TTree;
 class KFParticle;
 class KFParticle_Tools;
@@ -73,9 +73,6 @@ class KFParticle_truthAndDetTools
     std::vector<unsigned int> &v_emcal_5x5Cell_Eta,
     std::vector<float> &v_emcal_5x5Cell_E
   );
-  void initializeDetectorBranches(TTree *m_tree, int daughter_id, const std::string &daughter_number);
-  void initializeSubDetectorBranches(TTree *m_tree, const std::string &detectorName, int daughter_id, const std::string &daughter_number);
-  void fillDetectorBranch(PHCompositeNode *topNode, TTree *m_tree, const KFParticle &daughter, int daughter_id);
 
   void allPVInfo(PHCompositeNode *topNode, TTree *m_tree,
                  const KFParticle &motherParticle,
@@ -105,7 +102,6 @@ class KFParticle_truthAndDetTools
   void set_dz_cut_high(float set_variable) { m_dz_cut_high = set_variable; }
 
  protected:
-  bool m_get_detailed_tracking{true};
   bool m_get_detailed_calorimetry{false};
   bool m_get_calo_5x5_cell_info{false};
 
@@ -121,8 +117,6 @@ class KFParticle_truthAndDetTools
   SvtxTruthEval *trutheval{nullptr};
   SvtxVertexEval *vertexeval{nullptr};
 
-  ActsGeometry *geometry{nullptr};
-
   SvtxTrackMap *dst_trackmap{nullptr};
   SvtxTrack *track{nullptr};
 
@@ -134,12 +128,10 @@ class KFParticle_truthAndDetTools
   SvtxVertexMap *dst_vertexmap{nullptr};
   SvtxVertex *vertex{nullptr};
 
-  TrkrClusterContainer *dst_clustermap{nullptr};
-
   int m_num_tracks_nTuple{0};
   int m_num_intermediate_states_nTuple{0};
 
-  static const int max_tracks{20};
+  static constexpr int max_tracks{KFParticle_utilities::max_tracks};
 
   float m_emcal_radius_user{100.70};
   float m_ihcal_radius_user{117};
@@ -217,25 +209,6 @@ class KFParticle_truthAndDetTools
   RawTowerGeomContainer *OHCalGeo{nullptr};
   RawClusterContainer *clustersOH{nullptr};
   RawTowerContainer *_towersOH{nullptr};
-
-  unsigned int detector_nHits_MVTX[max_tracks]{0};
-  unsigned int detector_nHits_INTT[max_tracks]{0};
-  unsigned int detector_nHits_TPC[max_tracks]{0};
-  unsigned int detector_nHits_TPOT[max_tracks]{0};
-  unsigned int detector_nStates_MVTX[max_tracks]{0};
-  unsigned int detector_nStates_INTT[max_tracks]{0};
-  unsigned int detector_nStates_TPC[max_tracks]{0};
-  unsigned int detector_nStates_TPOT[max_tracks]{0};
-  std::vector<float> residual_x[max_tracks];
-  std::vector<float> residual_y[max_tracks];
-  std::vector<float> residual_z[max_tracks];
-  std::vector<int> detector_layer[max_tracks];
-  std::vector<int> mvtx_staveID[max_tracks];
-  std::vector<int> mvtx_chipID[max_tracks];
-  std::vector<int> intt_ladderZID[max_tracks];
-  std::vector<int> intt_ladderPhiID[max_tracks];
-  std::vector<int> tpc_sectorID[max_tracks];
-  std::vector<int> tpc_side[max_tracks];
 
   std::vector<float> allPV_x;
   std::vector<float> allPV_y;

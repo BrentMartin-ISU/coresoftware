@@ -14,6 +14,9 @@ class KFParticle_utilities
  public:
   KFParticle_utilities() = delete;
 
+  // Size of the per-daughter branch arrays
+  static constexpr int max_tracks{20};
+
   static SvtxTrack *getTrack(unsigned int track_id, SvtxTrackMap *trackmap);
 
   // Beam crossing of the vertex the candidate was built with; -100 if it can't be found

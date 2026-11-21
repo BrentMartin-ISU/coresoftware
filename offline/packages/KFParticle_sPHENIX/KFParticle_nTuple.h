@@ -1,6 +1,7 @@
 #ifndef KFPARTICLESPHENIX_KFPARTICLENTUPLE_H
 #define KFPARTICLESPHENIX_KFPARTICLENTUPLE_H
 
+#include "KFParticle_detectorInfo.h"
 #include "KFParticle_triggerInfo.h"
 #include "KFParticle_truthAndDetTools.h"
 
@@ -48,11 +49,18 @@ class KFParticle_nTuple : public KFParticle_truthAndDetTools, public KFParticle_
 
   bool fillConditionMet() const;
 
+  /// Passes the single KFParticle_Tools instance to every helper that reads its settings
+  void setToolsInstance(KFParticle_Tools *tools)
+  {
+    KFParticle_truthAndDetTools::setToolsInstance(tools);
+    m_detector.setToolsInstance(tools);
+  }
+
   /// Functions to get detailed subsystem information
   void GetDetailedTracking(bool set_variable = true)
   {
-    m_get_detailed_tracking = set_variable;
-    if (m_get_detailed_tracking)
+    m_detector.setDetailedTracking(set_variable);
+    if (set_variable)
     {
       m_detector_info = true;
     }
@@ -109,6 +117,8 @@ class KFParticle_nTuple : public KFParticle_truthAndDetTools, public KFParticle_
   int m_verbosity_nTuple{0};
 
  private:
+  KFParticle_detectorInfo m_detector;
+
   // This fills a reduced output meant for the ML momentum calibration
   // It contains mother mass/pT/eta/phi/PID, daughter pT/pTErr/eta/phi/charge/PID/covariance and runNumber only
   void initializeMomentumCalibrationBranches(const std::string &mother_name);

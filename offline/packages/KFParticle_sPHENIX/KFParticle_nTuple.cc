@@ -248,7 +248,7 @@ void KFParticle_nTuple::initializeBranches(PHCompositeNode* topNode)
     }
     if (m_detector_info)
     {
-      initializeDetectorBranches(m_tree, i, daughter_number);
+      m_detector.initializeBranches(m_tree, i, daughter_number);
     }
   }
 
@@ -552,7 +552,7 @@ void KFParticle_nTuple::fillBranch(PHCompositeNode* topNode,
     }
     if (m_detector_info)
     {
-      fillDetectorBranch(topNode, m_tree, daughterArray[i], i);
+      m_detector.fill(topNode, daughterArray[i], i);
     }
   }
 
@@ -721,6 +721,7 @@ void KFParticle_nTuple::fillBranch(PHCompositeNode* topNode,
   if (m_truth_matching || m_detector_info || m_get_calo_5x5_cell_info)
   {
     clearVectors();
+    m_detector.clear(m_num_tracks_nTuple);
   }
 
   if (m_trigger_info_available)

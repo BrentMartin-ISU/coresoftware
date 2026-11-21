@@ -18,6 +18,7 @@ AM_LDFLAGS = \
 pkginclude_HEADERS = \
   KFParticle_Config.h \
   KFParticle_Container.h \
+  KFParticle_detectorInfo.h \
   KFParticle_DST.h \
   KFParticle_eventReconstruction.h \
   KFParticle_nTuple.h \
@@ -39,6 +40,7 @@ libkfparticle_sphenix_io_la_SOURCES = \
   KFParticle_Container.cc
 
 libkfparticle_sphenix_la_SOURCES = \
+  KFParticle_detectorInfo.cc \
   KFParticle_DST.cc \
   KFParticle_eventReconstruction.cc \
   KFParticle_nTuple.cc \
