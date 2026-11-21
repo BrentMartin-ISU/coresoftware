@@ -21,6 +21,8 @@
 
 #include "KFParticle_sPHENIX.h"
 
+#include <centrality/CentralityInfo.h>
+
 #include <globalvertex/MbdVertex.h>
 #include <globalvertex/MbdVertexMap.h>
 #include <globalvertex/SvtxVertexMap.h>
@@ -116,6 +118,11 @@ int KFParticle_sPHENIX::InitRun(PHCompositeNode *topNode)
   assert(topNode);
 
   getField();
+
+  if (m_config.useCentrality && !findNode::getClass<CentralityInfo>(topNode, "CentralityInfo"))
+  {
+    std::cout << "KFParticle - [WARNING] - can't find CentralityInfo node CentralityInfo" << std::endl;
+  }
 
   return 0;
 }
