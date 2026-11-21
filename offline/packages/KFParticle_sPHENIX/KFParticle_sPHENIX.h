@@ -83,14 +83,14 @@ class KFParticle_sPHENIX : public SubsysReco, public KFParticle_nTuple, public K
 
   /// Parameters for the user to vary
 
-  void setDecayDescriptor(const std::string &decayDescriptor) { m_decayDescriptor = decayDescriptor; }
+  void setDecayDescriptor(const std::string &decayDescriptor) { m_config.decayDescriptor = decayDescriptor; }
 
   static const int max_particles = 99;
 
   //DEPRECATED: Use setDecayDescriptor instead; still called internally by parseDecayDescriptor
   void setMotherName(const std::string &mother_name)
   {
-    m_mother_name = mother_name;
+    m_config.motherName = mother_name;
     m_mother_name_Tools = mother_name;
   }
 
@@ -98,36 +98,34 @@ class KFParticle_sPHENIX : public SubsysReco, public KFParticle_nTuple, public K
   void hasIntermediateStates(bool has_intermediates = true)
   {
     m_has_intermediates = has_intermediates;
-    m_has_intermediates_nTuple = has_intermediates;
-    m_has_intermediates_sPHENIX = has_intermediates;
-    m_has_intermediates_DST = has_intermediates;
+    m_config.hasIntermediates = has_intermediates;
   }
 
   //DEPRECATED: Use setDecayDescriptor instead; still called internally by parseDecayDescriptor
   void setNumberOfTracks(int num_tracks)
   {
     m_num_tracks = num_tracks;
-    m_num_tracks_nTuple = num_tracks;
+    m_config.numTracks = num_tracks;
   }
 
   //DEPRECATED: Use setDecayDescriptor instead; still called internally by parseDecayDescriptor
   void setNumberTracksFromIntermeditateState(const std::vector<int> &num_tracks)
   {
     m_num_tracks_from_intermediate.insert(m_num_tracks_from_intermediate.end(), num_tracks.begin(), num_tracks.end());
-    m_num_tracks_from_intermediate_nTuple.insert(m_num_tracks_from_intermediate_nTuple.end(), num_tracks.begin(), num_tracks.end());
+    m_config.numTracksFromIntermediate.insert(m_config.numTracksFromIntermediate.end(), num_tracks.begin(), num_tracks.end());
   }
 
   //DEPRECATED: Use setDecayDescriptor instead; still called internally by parseDecayDescriptor
   void setNumberOfIntermediateStates(int n_intermediates)
   {
     m_num_intermediate_states = n_intermediates;
-    m_num_intermediate_states_nTuple = n_intermediates;
+    m_config.numIntermediateStates = n_intermediates;
   }
 
   //DEPRECATED: Use setDecayDescriptor instead; still called internally by parseDecayDescriptor
   void getChargeConjugate(bool get_charge_conjugate = true)
   {
-    m_get_charge_conjugate_nTuple = get_charge_conjugate;
+    m_config.chargeConjugate = get_charge_conjugate;
     m_get_charge_conjugate = get_charge_conjugate;
   }
 
@@ -146,7 +144,7 @@ class KFParticle_sPHENIX : public SubsysReco, public KFParticle_nTuple, public K
   {
     for (const auto &entry : intermediate_list)
     {
-      m_intermediate_name_ntuple.push_back(entry.first);
+      m_config.intermediateNames.push_back(entry.first);
       m_intermediate_name.push_back(entry.first);
       m_intermediate_charge.push_back(entry.second);
     }
@@ -491,7 +489,6 @@ class KFParticle_sPHENIX : public SubsysReco, public KFParticle_nTuple, public K
 
  private:
   KFParticle_Config m_config;  // the only writable configuration; base classes hold a const reference to it
-  bool m_has_intermediates_sPHENIX;
   int candidateCounter = 0;
   //Adding member variables for BCO matching
   uint64_t m_this_event_bco{0};
@@ -500,7 +497,6 @@ class KFParticle_sPHENIX : public SubsysReco, public KFParticle_nTuple, public K
   int64_t m_prev_runNumber{-1};
   int64_t m_prev_eventNumber{-1}; //till here
   TFile *m_outfile;
-  std::string m_decayDescriptor;
 };
 
 #endif  // KFPARTICLESPHENIX_KFPARTICLESPHENIX_H

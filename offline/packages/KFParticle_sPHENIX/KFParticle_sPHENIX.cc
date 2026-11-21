@@ -65,7 +65,6 @@ KFParticle_sPHENIX::KFParticle_sPHENIX(const std::string &name)
   , KFParticle_nTuple(m_config)  // binds only; m_config is constructed before any of it is read
   , KFParticle_DST(m_config)  // same
   , KFParticle_eventReconstruction(m_config)  // same
-  , m_has_intermediates_sPHENIX(false)
   , m_outfile(nullptr)
 {
   setToolsInstance(static_cast<KFParticle_Tools *>(this));
@@ -88,7 +87,7 @@ int KFParticle_sPHENIX::Init(PHCompositeNode *topNode)
   }
 
   int returnCode = 0;
-  if (!m_decayDescriptor.empty())
+  if (!m_config.decayDescriptor.empty())
   {
     returnCode = parseDecayDescriptor();
   }
@@ -221,7 +220,7 @@ int KFParticle_sPHENIX::process_event(PHCompositeNode *topNode)
   
 
   createDecay(topNode, mother, vertex_kfparticle, daughters, intermediates, nPVs);
-  if (!m_has_intermediates_sPHENIX)
+  if (!m_config.hasIntermediates)
   {
     intermediates = daughters;
   }
@@ -292,7 +291,7 @@ void KFParticle_sPHENIX::printParticles(const KFParticle &motherParticle,
   std::cout << "Mother information:" << std::endl;
   identify(motherParticle);
 
-  if (m_has_intermediates_sPHENIX)
+  if (m_config.hasIntermediates)
   {
     std::cout << "Intermediate state information:" << std::endl;
     for (const auto &intermediateParticle : intermediateParticles)
@@ -348,7 +347,7 @@ int KFParticle_sPHENIX::parseDecayDescriptor()
   // These tracks require a + or - after their name for TDatabasePDG
   std::string specialTracks[] = {"e", "mu", "pi", "K"};
 
-  std::string manipulateDecayDescriptor = m_decayDescriptor;
+  std::string manipulateDecayDescriptor = m_config.decayDescriptor;
 
   // Remove all white space before we begin
   size_t pos;

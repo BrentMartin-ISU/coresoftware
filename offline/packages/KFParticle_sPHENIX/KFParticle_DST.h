@@ -49,9 +49,6 @@ class KFParticle_DST
   /// Prints contents of KFParticle_Containers and SvtxTrackMaps for an event if they are enabled
   void printNode(PHCompositeNode* topNode);
 
- protected:
-  bool m_has_intermediates_DST = false;
-
  private:
   const KFParticle_Config& m_config;
   SvtxTrackMap* m_recoTrackMap = nullptr;

@@ -2,12 +2,24 @@
 #define KFPARTICLESPHENIX_KFPARTICLECONFIG_H
 
 #include <string>
+#include <vector>
 
 // Configuration for KFParticle, as plain read-only data.
 // KFParticle_sPHENIX owns the only writable instance (a private member, set through its setters).
 // Every other class holds a private const reference to it, so there the fields can be read but not written.
 struct KFParticle_Config
 {
+  // Decay definition: filled from decayDescriptor by parseDecayDescriptor in Init (or by the deprecated setters).
+  // KFParticle_Tools still keeps its own copies until the Tools rework.
+  std::string decayDescriptor;
+  std::string motherName;
+  bool hasIntermediates = false;
+  int numTracks = 0;
+  int numIntermediateStates = 0;
+  std::vector<int> numTracksFromIntermediate;  // one entry per intermediate; the setter appends
+  std::vector<std::string> intermediateNames;  // one entry per intermediate; the setter appends
+  bool chargeConjugate = false;
+
   // DST output
   bool saveDST = false;
   bool writeTrackContainer = true;

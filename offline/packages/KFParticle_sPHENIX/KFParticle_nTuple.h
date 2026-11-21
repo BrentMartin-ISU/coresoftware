@@ -68,19 +68,11 @@ class KFParticle_nTuple
   }
 
  protected:
-  bool m_has_intermediates_nTuple{false};
   bool m_extrapolateTracksToSV_nTuple{true};
-  int m_num_tracks_nTuple{0};
-  int m_num_intermediate_states_nTuple{0};
-  // int m_num_tracks_from_intermediate_nTuple[99];
-  std::vector<int> m_num_tracks_from_intermediate_nTuple;
   bool isTrackEMCalmatch{true};
-  std::string m_mother_name;
   // std::string m_vtx_map_node_name_nTuple;
-  bool m_get_charge_conjugate_nTuple{false};
   bool m_use_fake_pv_nTuple{false};
   std::string m_qa_tree_path{"DecayTree"};  // name (optionally dir/name) of the tree in the QA histogram manager
-  std::vector<std::string> m_intermediate_name_ntuple;
   int m_verbosity_nTuple{0};
 
  private:

@@ -146,7 +146,7 @@ void KFParticle_DST::fillParticleNode_Track(PHCompositeNode* topNode, KFParticle
   insertAtFreeKey(m_recoTrack, resonanceCounter, -1);
   m_recoTrack->Reset();
 
-  if (m_has_intermediates_DST)
+  if (m_config.hasIntermediates)
   {
     for (const auto& intermediate : intermediates)
     {
@@ -189,7 +189,7 @@ void KFParticle_DST::fillParticleNode_Particle(PHCompositeNode* topNode, KFParti
   motherParticle.SetProductionVertex(PV);
   motherParticle.TransportToDecayVertex();
 
-  if (m_has_intermediates_DST)
+  if (m_config.hasIntermediates)
   {
     for (auto& intermediate : intermediates)
     {
@@ -222,7 +222,7 @@ void KFParticle_DST::fillParticleNode_Particle(PHCompositeNode* topNode, KFParti
     m_recoParticleMap->insert(&daughter);
   }
 
-  if (m_has_intermediates_DST)
+  if (m_config.hasIntermediates)
   {
     for (auto& intermediate : intermediates)
     {
