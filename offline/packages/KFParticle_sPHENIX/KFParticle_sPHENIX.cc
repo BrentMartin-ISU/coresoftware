@@ -93,11 +93,6 @@ int KFParticle_sPHENIX::Init(PHCompositeNode *topNode)
     returnCode = parseDecayDescriptor();
   }
 
-  if (m_get_trigger_info)
-  {
-    triggeranalyzer = new TriggerAnalyzer();
-  }
-
   if (m_config.usePID)
   {
     init_dEdx_fits();

@@ -318,7 +318,7 @@ void KFParticle_nTuple::initializeBranches(PHCompositeNode* topNode)
 
   if (m_get_trigger_info)
   {
-    m_trigger_info_available = buildTriggerBranches(topNode, m_tree);
+    m_trigger.initializeBranches(topNode, m_tree);
   }
 }
 
@@ -708,9 +708,9 @@ void KFParticle_nTuple::fillBranch(PHCompositeNode* topNode,
     }
   }
 
-  if (m_trigger_info_available)
+  if (m_trigger.isAvailable())
   {
-    fillTriggerBranches(topNode);
+    m_trigger.fill(topNode);
   }
 
   if (fillConditionMet())
@@ -736,9 +736,9 @@ void KFParticle_nTuple::fillBranch(PHCompositeNode* topNode,
     clearAllPVInfo();
   }
 
-  if (m_trigger_info_available)
+  if (m_trigger.isAvailable())
   {
-    resetTriggerBranches();
+    m_trigger.clear();
   }
 }
 

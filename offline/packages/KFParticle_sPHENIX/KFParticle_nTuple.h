@@ -19,14 +19,14 @@ class TTree;
 class CentralityInfo;
 class KFParticle_Tools;
 
-class KFParticle_nTuple : public KFParticle_triggerInfo
+class KFParticle_nTuple
 {
  public:
   /// Constructor
   KFParticle_nTuple() = default;
 
   /// Destructor
-  ~KFParticle_nTuple() override = default;
+  virtual ~KFParticle_nTuple() = default;
 
   /// Unused for now, variables are initialised in the header
   void initializeVariables();
@@ -142,6 +142,7 @@ class KFParticle_nTuple : public KFParticle_triggerInfo
   KFParticle_detectorInfo m_detector;
   KFParticle_truthInfo m_truth;
   KFParticle_caloInfo m_calo;
+  KFParticle_triggerInfo m_trigger;
 
   // This fills a reduced output meant for the ML momentum calibration
   // It contains mother mass/pT/eta/phi/PID, daughter pT/pTErr/eta/phi/charge/PID/covariance and runNumber only
@@ -299,8 +300,6 @@ class KFParticle_nTuple : public KFParticle_triggerInfo
   int64_t m_bco{-1};
   uint64_t m_event_bco{0};//current event BCO
   uint64_t m_last_event_bco{0}; //only keeping this, BCO for the last event
-
-  bool m_trigger_info_available{false};
 
   std::vector<float> allPV_x;
   std::vector<float> allPV_y;
