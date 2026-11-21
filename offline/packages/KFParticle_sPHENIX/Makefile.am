@@ -24,7 +24,8 @@ pkginclude_HEADERS = \
   KFParticle_sPHENIX.h \
   KFParticle_Tools.h \
   KFParticle_triggerInfo.h \
-  KFParticle_truthAndDetTools.h
+  KFParticle_truthAndDetTools.h \
+  KFParticle_utilities.h
 
 ROOTDICTS = \
   KFParticle_Container_Dict.cc
@@ -44,7 +45,8 @@ libkfparticle_sphenix_la_SOURCES = \
   KFParticle_sPHENIX.cc \
   KFParticle_Tools.cc \
   KFParticle_triggerInfo.cc \
-  KFParticle_truthAndDetTools.cc
+  KFParticle_truthAndDetTools.cc \
+  KFParticle_utilities.cc
 
 libkfparticle_sphenix_io_la_LIBADD = \
   -lcentrality \

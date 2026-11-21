@@ -1,5 +1,6 @@
 #include "KFParticle_truthAndDetTools.h"
 #include "KFParticle_Tools.h"  // for KFParticle_Tools
+#include "KFParticle_utilities.h"
 
 #include <g4eval/SvtxEvalStack.h>   // for SvtxEvalStack
 #include <g4eval/SvtxTrackEval.h>   // for SvtxTrackEval
@@ -72,18 +73,6 @@ std::map<std::string, int> Use =
         {"EMCAL", 0},
         {"OHCAL", 0},
         {"IHCAL", 0}};
-
-SvtxTrack *KFParticle_truthAndDetTools::getTrack(unsigned int track_id, SvtxTrackMap *trackmap)
-{
-  // Track ids are the keys of the map, so look the track up directly instead of scanning the whole map
-  auto iter = trackmap->find(track_id);
-  if (iter == trackmap->end())
-  {
-    return nullptr;
-  }
-
-  return iter->second;
-}
 
 GlobalVertex *KFParticle_truthAndDetTools::getVertex(unsigned int vertex_id, GlobalVertexMap *vertexmap)
 {
@@ -206,7 +195,7 @@ void KFParticle_truthAndDetTools::fillTruthBranch(PHCompositeNode *topNode, TTre
     std::cout << "KFParticle truth matching: GlobalVertexMap does not exist" << std::endl;
   }
 
-  track = getTrack(daughter.Id(), dst_trackmap);
+  track = KFParticle_utilities::getTrack(daughter.Id(), dst_trackmap);
   g4particle = getTruthTrack(track, topNode);
 
   const bool isParticleValid = g4particle != nullptr;
@@ -393,7 +382,7 @@ int KFParticle_truthAndDetTools::getHepMCInfo(PHCompositeNode *topNode, TTree * 
     exit(1);
   }
 
-  track = getTrack(daughter.Id(), dst_trackmap);
+  track = KFParticle_utilities::getTrack(daughter.Id(), dst_trackmap);
   g4particle = getTruthTrack(track, topNode);
 
   const bool isParticleValid = g4particle != nullptr;
@@ -538,7 +527,7 @@ void KFParticle_truthAndDetTools::fillCaloBranch(PHCompositeNode *topNode,
   }
 
   // Get track
-  track = getTrack(daughter.Id(), dst_trackmap);
+  track = KFParticle_utilities::getTrack(daughter.Id(), dst_trackmap);
 
   // EMCal info
   if (!clustersEM)
@@ -1360,7 +1349,7 @@ void KFParticle_truthAndDetTools::fillDetectorBranch(PHCompositeNode *topNode,
     }
   }
 
-  track = getTrack(daughter.Id(), dst_trackmap);
+  track = KFParticle_utilities::getTrack(daughter.Id(), dst_trackmap);
   detector_nHits_MVTX[daughter_id] = 0;
   detector_nHits_INTT[daughter_id] = 0;
   detector_nHits_TPC[daughter_id] = 0;
@@ -1506,48 +1495,6 @@ void KFParticle_truthAndDetTools::fillDetectorBranch(PHCompositeNode *topNode,
       }
     }
   }
-}
-
-int KFParticle_truthAndDetTools::getPVID(PHCompositeNode *topNode, const KFParticle &kfpvertex)
-{
-  if (m_tools->get_dont_use_global_vertex())
-  {
-    if (m_tools->get_use_mbd_vertex())
-    {
-      dst_mbdvertexmap = findNode::getClass<MbdVertexMap>(topNode, "MbdVertexMap");
-      if (dst_mbdvertexmap)
-      {
-        MbdVertex *m_dst_vertex = dst_mbdvertexmap->get(kfpvertex.Id());
-        return m_dst_vertex->get_beam_crossing();
-      }
-
-      std::cout << "KFParticle vertex matching: " << m_tools->get_vtx_map_node_name() << " does not exist" << std::endl;
-    }
-    else
-    {
-      dst_vertexmap = findNode::getClass<SvtxVertexMap>(topNode, m_tools->get_vtx_map_node_name());
-      if (dst_vertexmap)
-      {
-        SvtxVertex *m_dst_vertex = dst_vertexmap->get(kfpvertex.Id());
-        return m_dst_vertex->get_beam_crossing();
-      }
-
-      std::cout << "KFParticle vertex matching: " << m_tools->get_vtx_map_node_name() << " does not exist" << std::endl;
-    }
-  }
-  else
-  {
-    auto *globalvertexmap = findNode::getClass<GlobalVertexMap>(topNode, "GlobalVertexMap");
-    if (!globalvertexmap)
-    {
-      return -100;
-    }
-
-    GlobalVertex *gvertex = globalvertexmap->get(kfpvertex.Id());
-    return gvertex->get_beam_crossing();
-  }
-
-  return -100;
 }
 
 void KFParticle_truthAndDetTools::allPVInfo(PHCompositeNode *topNode,

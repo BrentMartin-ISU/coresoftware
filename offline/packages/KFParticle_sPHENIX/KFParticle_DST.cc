@@ -13,7 +13,7 @@
 
 #include "KFParticle_Container.h"
 #include "KFParticle_Tools.h"
-#include "KFParticle_truthAndDetTools.h"
+#include "KFParticle_utilities.h"
 
 #include <trackbase_historic/SvtxTrack.h>     // for SvtxTrack
 #include <trackbase_historic/SvtxTrackMap.h>  // for SvtxTrackMap, SvtxTr...
@@ -37,7 +37,6 @@
 #include <utility>   // for pair
 
 KFParticle_Tools kfpTupleTools_DST;
-KFParticle_truthAndDetTools kfpTruthTools_DST;
 
 namespace
 {
@@ -169,7 +168,7 @@ void KFParticle_DST::fillParticleNode_Track(PHCompositeNode* topNode, KFParticle
     }
     else
     {
-      m_recoTrack = KFParticle_truthAndDetTools::getTrack(daughter.Id(), originalTrackMap);
+      m_recoTrack = KFParticle_utilities::getTrack(daughter.Id(), originalTrackMap);
       if (!m_recoTrackMap->get(daughter.Id()))
       {
         m_recoTrackMap->insertWithKey(m_recoTrack, daughter.Id());

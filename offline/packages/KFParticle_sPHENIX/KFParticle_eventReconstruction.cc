@@ -27,7 +27,6 @@
 
 #include "KFParticle_eventReconstruction.h"
 #include "KFParticle_Tools.h"
-#include "KFParticle_truthAndDetTools.h"
 
 //sPHENIX stuff
 #include <trackbase_historic/SvtxTrack.h>

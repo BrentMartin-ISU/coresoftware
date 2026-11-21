@@ -26,7 +26,7 @@
 /*****************/
 
 #include "KFParticle_Tools.h"
-#include "KFParticle_truthAndDetTools.h"
+#include "KFParticle_utilities.h"
 
 #include <trackbase_historic/SvtxTrack.h>
 #include <trackbase_historic/SvtxTrack_v5.h>
@@ -508,7 +508,7 @@ int KFParticle_Tools::getTracksFromVertex(PHCompositeNode *topNode, const KFPart
 
 bool KFParticle_Tools::isTPConlyAtZeroCrossing(const KFParticle& track)
 {
-  const auto* svtxTrack = KFParticle_truthAndDetTools::getTrack(track.Id(), m_dst_trackmap);
+  const auto* svtxTrack = KFParticle_utilities::getTrack(track.Id(), m_dst_trackmap);
 
   if (!svtxTrack || svtxTrack->get_crossing() != 0)
   {
@@ -586,7 +586,7 @@ std::vector<int> KFParticle_Tools::getParticleCrossings(const KFParticle &partic
 {
   std::vector<int> crossings;
 
-  SvtxTrack *thisTrack = KFParticle_truthAndDetTools::getTrack(particle.Id(), m_dst_trackmap);
+  SvtxTrack *thisTrack = KFParticle_utilities::getTrack(particle.Id(), m_dst_trackmap);
   if (thisTrack)
   {
     crossings.push_back(thisTrack->get_crossing());
@@ -1554,7 +1554,7 @@ float KFParticle_Tools::get_dEdx(PHCompositeNode *topNode, const KFParticle &dau
     return -1.0;
   }
 
-  SvtxTrack *daughter_track = KFParticle_truthAndDetTools::getTrack(daughter.Id(), m_dst_trackmap);
+  SvtxTrack *daughter_track = KFParticle_utilities::getTrack(daughter.Id(), m_dst_trackmap);
   if (!daughter_track)
   {
     // No backing SvtxTrack -- e.g. daughter is itself a built intermediate.

@@ -1,5 +1,6 @@
 #include "KFParticle_nTuple.h"
 #include "KFParticle_Tools.h"
+#include "KFParticle_utilities.h"
 
 #include <ffaobjects/EventHeader.h>
 #include <ffarawobjects/Gl1Packet.h>
@@ -521,7 +522,7 @@ void KFParticle_nTuple::fillBranch(PHCompositeNode* topNode,
 
     // Now get bunch crossing number for the daughter particle
     SvtxTrackMap* thisTrackMap = findNode::getClass<SvtxTrackMap>(topNode, m_tools->get_trk_map_node_name());
-    SvtxTrack* thisTrack = getTrack(daughterArray[i].Id(), thisTrackMap);
+    SvtxTrack* thisTrack = KFParticle_utilities::getTrack(daughterArray[i].Id(), thisTrackMap);
     m_calculated_daughter_bunch_crossing[i] = thisTrack->get_crossing();
     if (m_calculated_daughter_bunch_crossing[i] != 0)
     {
@@ -625,7 +626,8 @@ void KFParticle_nTuple::fillBranch(PHCompositeNode* topNode,
 
     // it only makes sense to calculate PVID for non-fake vertex
     // (this otherwise crashes if m_use_fake_pv_nTuple is true in an event with no real vertices)
-    m_calculated_vertex_ID = m_use_fake_pv_nTuple ? -100 : getPVID(topNode, vertex_fillbranch);  // -100 is the error value returned by getPVID
+    m_calculated_vertex_ID = m_use_fake_pv_nTuple ? -100 : KFParticle_utilities::getPVID(topNode, vertex_fillbranch, m_tools->get_dont_use_global_vertex(),
+                                                                                          m_tools->get_use_mbd_vertex(), m_tools->get_vtx_map_node_name());  // -100 is the error value returned by getPVID
     // m_calculated_vertex_cov          = &vertex_fillbranch.CovarianceMatrix()[0];
     for (int j = 0; j < 6; ++j)
     {
