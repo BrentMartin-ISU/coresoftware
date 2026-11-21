@@ -240,7 +240,7 @@ void KFParticle_nTuple::initializeBranches(PHCompositeNode* topNode)
     // m_tree->Branch(TString(daughter_number) + "_expected_proton_dEdx", &m_calculated_daughter_expected_dedx_proton[i], TString(daughter_number) + "_expected_proton_dEdx/F");
     if (m_calo_info)
     {
-      initializeCaloBranches(m_tree, i, daughter_number);
+      m_calo.initializeBranches(m_tree, i, daughter_number);
     }
     if (m_truth_matching)
     {
@@ -539,7 +539,7 @@ void KFParticle_nTuple::fillBranch(PHCompositeNode* topNode,
     bool tempEMCalmatch = false;
     if (m_calo_info)
     {
-      fillCaloBranch(topNode, m_tree, daughterArray[i], i, tempEMCalmatch, vertex_fillbranch);
+      m_calo.fill(topNode, daughterArray[i], i, tempEMCalmatch, vertex_fillbranch);
       if (m_require_track_emcal_match && !tempEMCalmatch)
       {
         isTrackEMCalmatch = false;
@@ -718,11 +718,12 @@ void KFParticle_nTuple::fillBranch(PHCompositeNode* topNode,
     m_tree->Fill();
   }
 
-  if (m_truth_matching || m_detector_info || m_get_calo_5x5_cell_info)
+  if (m_truth_matching || m_detector_info || m_calo.get5x5CellInfo())
   {
     clearVectors();
     m_detector.clear(m_num_tracks_nTuple);
     m_truth.clear(m_num_tracks_nTuple);
+    m_calo.clear(m_num_tracks_nTuple);
   }
 
   if (m_trigger_info_available)

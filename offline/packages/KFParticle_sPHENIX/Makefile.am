@@ -16,6 +16,7 @@ AM_LDFLAGS = \
   `root-config --libs`
 
 pkginclude_HEADERS = \
+  KFParticle_caloInfo.h \
   KFParticle_Config.h \
   KFParticle_Container.h \
   KFParticle_detectorInfo.h \
@@ -41,6 +42,7 @@ libkfparticle_sphenix_io_la_SOURCES = \
   KFParticle_Container.cc
 
 libkfparticle_sphenix_la_SOURCES = \
+  KFParticle_caloInfo.cc \
   KFParticle_detectorInfo.cc \
   KFParticle_DST.cc \
   KFParticle_eventReconstruction.cc \

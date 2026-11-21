@@ -1,6 +1,7 @@
 #ifndef KFPARTICLESPHENIX_KFPARTICLENTUPLE_H
 #define KFPARTICLESPHENIX_KFPARTICLENTUPLE_H
 
+#include "KFParticle_caloInfo.h"
 #include "KFParticle_detectorInfo.h"
 #include "KFParticle_triggerInfo.h"
 #include "KFParticle_truthAndDetTools.h"
@@ -56,6 +57,7 @@ class KFParticle_nTuple : public KFParticle_truthAndDetTools, public KFParticle_
     KFParticle_truthAndDetTools::setToolsInstance(tools);
     m_detector.setToolsInstance(tools);
     m_truth.setToolsInstance(tools);
+    m_calo.setToolsInstance(tools);
   }
 
   /// Functions to get detailed subsystem information
@@ -70,8 +72,8 @@ class KFParticle_nTuple : public KFParticle_truthAndDetTools, public KFParticle_
   // Function that will add additional calorimetry info to the output TTree
   void GetDetailedCalorimetry(bool set_variable = true)
   {
-    m_get_detailed_calorimetry = set_variable;
-    if (m_get_detailed_calorimetry)
+    m_calo.setDetailedCalorimetry(set_variable);
+    if (set_variable)
     {
       m_calo_info = true;
     }
@@ -79,12 +81,21 @@ class KFParticle_nTuple : public KFParticle_truthAndDetTools, public KFParticle_
   // Function that will add info from the 5x5 cell of towers around the cluster center to the output TTree
   void GetCalo5x5CellInfo(bool set_variable = true) 
   {
-    m_get_calo_5x5_cell_info = set_variable;
-    if (m_get_calo_5x5_cell_info)
+    m_calo.set5x5CellInfo(set_variable);
+    if (set_variable)
     {
       m_calo_info = true;
     }
   }
+  // Track-to-EMCal matching settings, passed on to the calorimeter helper
+  void setVerbosityTrack2Calo(int verb) { m_calo.setVerbosityTrack2Calo(verb); }
+  void set_emcal_radius_user(float set_variable) { m_calo.set_emcal_radius_user(set_variable); }
+  void set_emcal_e_low_cut(float set_variable) { m_calo.set_emcal_e_low_cut(set_variable); }
+  void set_dphi_cut_low(float set_variable) { m_calo.set_dphi_cut_low(set_variable); }
+  void set_dphi_cut_high(float set_variable) { m_calo.set_dphi_cut_high(set_variable); }
+  void set_dz_cut_low(float set_variable) { m_calo.set_dz_cut_low(set_variable); }
+  void set_dz_cut_high(float set_variable) { m_calo.set_dz_cut_high(set_variable); }
+
   void get_dEdx_info(bool set_variable = true)
   {
     m_get_dEdx = set_variable;
@@ -121,6 +132,7 @@ class KFParticle_nTuple : public KFParticle_truthAndDetTools, public KFParticle_
  private:
   KFParticle_detectorInfo m_detector;
   KFParticle_truthInfo m_truth;
+  KFParticle_caloInfo m_calo;
 
   // This fills a reduced output meant for the ML momentum calibration
   // It contains mother mass/pT/eta/phi/PID, daughter pT/pTErr/eta/phi/charge/PID/covariance and runNumber only
