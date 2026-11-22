@@ -12,7 +12,6 @@
 #include "KFParticle_DST.h"
 
 #include "KFParticle_Container.h"
-#include "KFParticle_unsorted.h"
 #include "KFParticle_utilities.h"
 
 #include <trackbase_historic/SvtxTrack.h>     // for SvtxTrack
@@ -290,7 +289,7 @@ void KFParticle_DST::printNode(PHCompositeNode* topNode)
     for (auto& iter : *particlemap)
     {
       KFParticle* particle = iter.second;
-      KFParticle_unsorted::identify(*particle);
+      KFParticle_utilities::identify(*particle);
     }
     std::cout << "--------------------------------------------------------------------------------------------------" << std::endl;
   }

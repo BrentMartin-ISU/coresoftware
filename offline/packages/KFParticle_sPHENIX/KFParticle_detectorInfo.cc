@@ -1,5 +1,4 @@
 #include "KFParticle_detectorInfo.h"
-#include "KFParticle_Tools.h"  // for KFParticle_Tools, findSeed
 #include "KFParticle_utilities.h"
 
 #include <trackbase/ActsGeometry.h>
@@ -139,8 +138,8 @@ void KFParticle_detectorInfo::fill(PHCompositeNode *topNode, const KFParticle &d
     tpcSeedContainer = findNode::getClass<TrackSeedContainer>(topNode, "TpcTrackSeedContainer");
   }
 
-  TrackSeed *silseed = isTrack_v5 ? KFParticle_Tools::findSeed(siliconSeedContainer, track->get_silicon_seed_id()) : track->get_silicon_seed();
-  TrackSeed *tpcseed = isTrack_v5 ? KFParticle_Tools::findSeed(tpcSeedContainer, track->get_tpc_seed_id()) : track->get_tpc_seed();
+  TrackSeed *silseed = isTrack_v5 ? KFParticle_utilities::findSeed(siliconSeedContainer, track->get_silicon_seed_id()) : track->get_silicon_seed();
+  TrackSeed *tpcseed = isTrack_v5 ? KFParticle_utilities::findSeed(tpcSeedContainer, track->get_tpc_seed_id()) : track->get_tpc_seed();
 
   if (silseed)
   {

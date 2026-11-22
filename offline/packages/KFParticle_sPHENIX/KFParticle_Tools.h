@@ -91,11 +91,6 @@ class KFParticle_Tools
 
   std::vector<std::vector<int>> appendTracksToIntermediates(KFParticle intermediateResonances[], const std::vector<KFParticle> &daughterParticles, const std::vector<int> &goodTrackIndex, int num_remaining_tracks, const std::vector<KFParticle> &primaryVertices);
 
-  /// Calculates the cosine of the angle betweent the flight direction and momentum
-  float eventDIRA(const KFParticle &particle, const KFParticle &vertex, bool do3D = true);
-
-  float flightDistanceChi2(const KFParticle &particle, const KFParticle &vertex);
-
   std::tuple<KFParticle, bool> buildMother(KFParticle vDaughters[], int daughterOrder[], bool isIntermediate, int intermediateNumber, int nTracks, bool constrainMass, float required_vertexID, PHCompositeNode *topNode);
 
   void constrainToVertex(KFParticle &particle, bool &goodCandidate, KFParticle &vertex);
@@ -105,16 +100,9 @@ class KFParticle_Tools
 
   std::vector<std::vector<int>> findUniqueDaughterCombinations(int start, int end);
 
-  float calculateEllipsoidVolume(const KFParticle &particle);
-
   bool isInRange(float min, float value, float max);
 
-  int getParticleID(const std::string &particle);
-
   bool finalStateMatchesDecay(const std::vector<std::pair<int, int>> &assigned);
-
-  float getParticleMass(const std::string &particle);
-  float getParticleMass(int PDGID);
 
   float get_dEdx(PHCompositeNode *topNode, const KFParticle &daughter);
 
@@ -127,8 +115,6 @@ class KFParticle_Tools
   bool checkTrackAndVertexMatch(KFParticle vDaughters[], int nTracks, const KFParticle &vertex);
 
   std::vector<int> getParticleCrossings(const KFParticle &particle);
-
-  static TrackSeed *findSeed(TrackSeedContainer *container, unsigned short id);
 
  protected:
   int m_verbosity = 0;

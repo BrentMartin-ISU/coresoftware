@@ -27,6 +27,7 @@
 
 #include "KFParticle_eventReconstruction.h"
 #include "KFParticle_Tools.h"
+#include "KFParticle_utilities.h"
 
 //sPHENIX stuff
 #include <trackbase_historic/SvtxTrack.h>
@@ -54,9 +55,6 @@ namespace
   const std::set<int> chargedLeptonPDGIDs = {11, 13, 15};
 }  // namespace
 
-/// Create necessary objects
-KFParticle_Tools kfp_Tools_evtReco;
-
 namespace
 {
   // Copy of track with the mass and PDG ID for hypothesis pid. A charged track gets q * pid
@@ -67,7 +65,7 @@ namespace
     int pdg = 0;
     if ((Int_t) track.GetQ() != 0)
     {
-      mass = kfp_Tools_evtReco.getParticleMass((Int_t) track.GetQ() * pid);
+      mass = KFParticle_utilities::getParticleMass((Int_t) track.GetQ() * pid);
       pdg = (Int_t) track.GetQ() * pid;
 
       if (chargedLeptonPDGIDs.contains(std::abs(pdg)))
@@ -77,7 +75,7 @@ namespace
     }
     else
     {
-      mass = kfp_Tools_evtReco.getParticleMass(pid);
+      mass = KFParticle_utilities::getParticleMass(pid);
       pdg = pid;
     }
     KFParticle particle;
@@ -284,7 +282,7 @@ void KFParticle_eventReconstruction::buildChain(std::vector<KFParticle>& selecte
           float required_unique_vertexID = 0;
           for (int n = 0; n < m_num_intermediate_states; ++n)
           {
-            required_unique_vertexID += m_intermediate_charge[n] * kfp_Tools_evtReco.getParticleMass(m_intermediate_name[n]);
+            required_unique_vertexID += m_intermediate_charge[n] * KFParticle_utilities::getParticleMass(m_intermediate_name[n]);
           }
 
           std::vector<std::vector<int>> uniqueCombinations;
@@ -294,7 +292,7 @@ void KFParticle_eventReconstruction::buildChain(std::vector<KFParticle>& selecte
           {
             for (int i = num_tracks_used_by_intermediates; i < m_num_tracks; ++i)
             {
-              required_unique_vertexID += m_daughter_charge[i] * kfp_Tools_evtReco.getParticleMass(m_daughter_name[i]);
+              required_unique_vertexID += m_daughter_charge[i] * KFParticle_utilities::getParticleMass(m_daughter_name[i]);
             }
 
             uniqueCombinations = findUniqueDaughterCombinations(num_tracks_used_by_intermediates, m_num_tracks);  // Unique comb of remaining trackIDs
@@ -305,7 +303,7 @@ void KFParticle_eventReconstruction::buildChain(std::vector<KFParticle>& selecte
             {
               for (const auto& element_of_intermediate : m_intermediate_name)
               {
-                uniqueCombination.insert(begin(uniqueCombination), kfp_Tools_evtReco.getParticleID(element_of_intermediate));
+                uniqueCombination.insert(begin(uniqueCombination), KFParticle_utilities::getParticleID(element_of_intermediate));
               }
             }
           }
@@ -315,7 +313,7 @@ void KFParticle_eventReconstruction::buildChain(std::vector<KFParticle>& selecte
             intermediate_id.reserve(m_intermediate_name.size());
             for (const auto& element_of_intermediate : m_intermediate_name)
             {
-              intermediate_id.push_back(kfp_Tools_evtReco.getParticleID(element_of_intermediate));
+              intermediate_id.push_back(KFParticle_utilities::getParticleID(element_of_intermediate));
             }
             uniqueCombinations.push_back(intermediate_id);
             listOfTracksToAppend.push_back({0});
@@ -440,7 +438,7 @@ void KFParticle_eventReconstruction::getCandidateDecay(std::vector<KFParticle>& 
   float required_unique_vertexID = 0;
   for (int i = n_track_start; i < n_track_stop; ++i)
   {
-    required_unique_vertexID += m_daughter_charge[i] * kfp_Tools_evtReco.getParticleMass(m_daughter_name[i]);
+    required_unique_vertexID += m_daughter_charge[i] * KFParticle_utilities::getParticleMass(m_daughter_name[i]);
   }
 
   for (const auto& i_comb : goodTracksThatMeetCand)  // Loop over all good track combinations

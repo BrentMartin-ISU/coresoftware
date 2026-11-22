@@ -20,6 +20,7 @@
  */
 
 #include "KFParticle_sPHENIX.h"
+#include "KFParticle_unsorted.h"
 
 #include <centrality/CentralityInfo.h>
 
@@ -289,21 +290,21 @@ void KFParticle_sPHENIX::printParticles(const KFParticle &motherParticle,
   std::cout << "\n---------------KFParticle candidate information---------------" << std::endl;
 
   std::cout << "Mother information:" << std::endl;
-  KFParticle_unsorted::identify(motherParticle);
+  KFParticle_utilities::identify(motherParticle);
 
   if (m_config.hasIntermediates)
   {
     std::cout << "Intermediate state information:" << std::endl;
     for (const auto &intermediateParticle : intermediateParticles)
     {
-      KFParticle_unsorted::identify(intermediateParticle);
+      KFParticle_utilities::identify(intermediateParticle);
     }
   }
 
   std::cout << "Final track information:" << std::endl;
   for (const auto &daughterParticle : daughterParticles)
   {
-    KFParticle_unsorted::identify(daughterParticle);
+    KFParticle_utilities::identify(daughterParticle);
   }
 
   if (m_config.constrainToPrimaryVertex)

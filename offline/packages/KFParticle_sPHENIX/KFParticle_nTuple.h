@@ -6,7 +6,6 @@
 #include "KFParticle_detectorInfo.h"
 #include "KFParticle_triggerInfo.h"
 #include "KFParticle_truthInfo.h"
-#include "KFParticle_unsorted.h"
 #include "KFParticle_utilities.h"
 
 #include <KFParticle.h>
@@ -30,7 +29,6 @@ class KFParticle_nTuple
     , m_detector(config)
     , m_truth(config)
     , m_calo(config)
-    , m_unsorted(config)
   {
   }
 
@@ -84,7 +82,6 @@ class KFParticle_nTuple
   KFParticle_truthInfo m_truth;
   KFParticle_caloInfo m_calo;
   KFParticle_triggerInfo m_trigger;
-  KFParticle_unsorted m_unsorted;  // temporary, see KFParticle_unsorted.h
 
   // This fills a reduced output meant for the ML momentum calibration
   // It contains mother mass/pT/eta/phi/PID, daughter pT/pTErr/eta/phi/charge/PID/covariance and runNumber only
@@ -99,6 +96,12 @@ class KFParticle_nTuple
                  std::vector<KFParticle> daughters,
                  std::vector<KFParticle> intermediates);
   void clearAllPVInfo();
+
+  // Event-level counts and jT, moved from KFParticle_Tools (only the nTuple uses them)
+  void getTracksFromBC(PHCompositeNode *topNode, const int &bunch_crossing, const std::string &vertexMapName, int &nTracks, int &nPVs) const;
+  int getTracksFromVertex(PHCompositeNode *topNode, const KFParticle &vertex, const std::string &vertexMapName) const;
+  static int getNchargedSiSeedMultiplicity(PHCompositeNode *topNode, const int &bunch_crossing, int verbosity);
+  static float calculateJT(const KFParticle &mother, const KFParticle &daughter);
 
 
   TTree *m_tree{nullptr};

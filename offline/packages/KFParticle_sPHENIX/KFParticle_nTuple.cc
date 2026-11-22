@@ -6,11 +6,20 @@
 #include <ffarawobjects/Gl1Packet.h>
 #include <fun4all/Fun4AllHistoManager.h>
 
+#include <globalvertex/GlobalVertex.h>
+#include <globalvertex/GlobalVertexMap.h>
+#include <globalvertex/SvtxVertex.h>
+#include <globalvertex/SvtxVertexMap.h>
 #include <phool/PHNodeIterator.h>  // for PHNodeIterator
 #include <phool/getClass.h>
+#include <phool/phool.h>  // for PHWHERE
 #include <qautils/QAHistManagerDef.h>
 #include <trackbase_historic/SvtxTrack.h>
 #include <trackbase_historic/SvtxTrackMap.h>
+#include <trackbase_historic/TrackAnalysisUtils.h>
+#include <trackbase_historic/TrackSeed.h>
+#include <trackbase_historic/TrackSeedContainer.h>
+#include <trackbase/TrkrDefs.h>
 
 #include <KFParticle.h>
 #include <KFVertex.h>
@@ -20,6 +29,8 @@
 #include <Rtypes.h>
 #include <TString.h>  // for TString, operator+
 #include <TTree.h>
+
+#include <Eigen/Dense>
 
 #include <algorithm>  // for max
 #include <cmath>
@@ -349,8 +360,8 @@ void KFParticle_nTuple::fillBranch(PHCompositeNode* topNode,
         bool switchTrackPosition;
         if (m_config.chargeConjugate)
         {
-          float daughterA_mass = m_tools->getParticleMass(particleAPID);
-          float daughterB_mass = m_tools->getParticleMass(particleBPID);
+          float daughterA_mass = KFParticle_utilities::getParticleMass(particleAPID);
+          float daughterB_mass = KFParticle_utilities::getParticleMass(particleBPID);
           switchTrackPosition = daughterA_mass > daughterB_mass;
         }
         else
@@ -392,9 +403,9 @@ void KFParticle_nTuple::fillBranch(PHCompositeNode* topNode,
 
   if (m_config.constrainToPrimaryVertex)
   {
-    m_calculated_mother_dira = m_tools->eventDIRA(motherParticle, vertex_fillbranch);
-    m_calculated_mother_dira_xy = m_tools->eventDIRA(motherParticle, vertex_fillbranch, false);
-    m_calculated_mother_fdchi2 = m_tools->flightDistanceChi2(motherParticle, vertex_fillbranch);
+    m_calculated_mother_dira = KFParticle_utilities::eventDIRA(motherParticle, vertex_fillbranch);
+    m_calculated_mother_dira_xy = KFParticle_utilities::eventDIRA(motherParticle, vertex_fillbranch, false);
+    m_calculated_mother_fdchi2 = KFParticle_utilities::flightDistanceChi2(motherParticle, vertex_fillbranch);
     m_calculated_mother_PV_dca = motherParticle.GetDistanceFromVertex(vertex_fillbranch);
     m_calculated_mother_PV_dca_sig = motherParticle.GetDeviationFromVertex(vertex_fillbranch);
     m_calculated_mother_PV_dca_err = m_calculated_mother_PV_dca / std::sqrt(m_calculated_mother_PV_dca_sig);
@@ -418,7 +429,7 @@ void KFParticle_nTuple::fillBranch(PHCompositeNode* topNode,
   m_calculated_mother_theta = motherParticle.GetTheta();
   // m_calculated_mother_phi = motherParticle.GetPhi();
   motherParticle.GetPhi(m_calculated_mother_phi, TempError);
-  m_calculated_mother_v = m_tools->calculateEllipsoidVolume(motherParticle);
+  m_calculated_mother_v = KFParticle_utilities::calculateEllipsoidVolume(motherParticle);
   m_calculated_mother_pdgID = motherParticle.GetPDG();
   // m_calculated_mother_cov          = &motherParticle.CovarianceMatrix()[0];
   for (int j = 0; j < 21; ++j)
@@ -433,8 +444,8 @@ void KFParticle_nTuple::fillBranch(PHCompositeNode* topNode,
   {
     for (int i = 0; i < m_config.numIntermediateStates; ++i)
     {
-      m_calculated_intermediate_dira[i] = m_tools->eventDIRA(intermediateArray[i], motherParticle);
-      m_calculated_intermediate_fdchi2[i] = m_tools->flightDistanceChi2(intermediateArray[i], motherParticle);
+      m_calculated_intermediate_dira[i] = KFParticle_utilities::eventDIRA(intermediateArray[i], motherParticle);
+      m_calculated_intermediate_fdchi2[i] = KFParticle_utilities::flightDistanceChi2(intermediateArray[i], motherParticle);
       if (m_config.constrainToPrimaryVertex)
       {
         m_calculated_intermediate_PV_dca[i] = intermediateArray[i].GetDistanceFromVertex(vertex_fillbranch);
@@ -460,7 +471,7 @@ void KFParticle_nTuple::fillBranch(PHCompositeNode* topNode,
       m_calculated_intermediate_theta[i] = intermediateArray[i].GetTheta();
       // m_calculated_intermediate_phi[i] = intermediateArray[i].GetPhi();
       intermediateArray[i].GetPhi(m_calculated_intermediate_phi[i], TempError);
-      m_calculated_intermediate_v[i] = m_tools->calculateEllipsoidVolume(intermediateArray[i]);
+      m_calculated_intermediate_v[i] = KFParticle_utilities::calculateEllipsoidVolume(intermediateArray[i]);
       m_calculated_intermediate_pdgID[i] = intermediateArray[i].GetPDG();
       // m_calculated_intermediate_cov[i]          = &intermediateArray[i].CovarianceMatrix()[0];
       for (int j = 0; j < 21; ++j)
@@ -565,7 +576,7 @@ void KFParticle_nTuple::fillBranch(PHCompositeNode* topNode,
     KFVertex intermediateDecayVertex;
     for (int j = 0; j < m_config.numTracksFromIntermediate[k]; ++j)
     {
-      m_calculated_daughter_jt[iter] = KFParticle_unsorted::calculateJT(intermediateArray[k], daughterArray[iter]);
+      m_calculated_daughter_jt[iter] = calculateJT(intermediateArray[k], daughterArray[iter]);
       intermediateDecayVertex += daughterArray[iter];
       ++iter;
     }
@@ -575,7 +586,7 @@ void KFParticle_nTuple::fillBranch(PHCompositeNode* topNode,
   }
   for (int k = 0; k < num_remaining_tracks; k++)
   {
-    m_calculated_daughter_jt[iter] = KFParticle_unsorted::calculateJT(motherParticle, daughterArray[iter]);
+    m_calculated_daughter_jt[iter] = calculateJT(motherParticle, daughterArray[iter]);
     motherDecayVertex += daughterArray[iter];
     ++iter;
   }
@@ -620,7 +631,7 @@ void KFParticle_nTuple::fillBranch(PHCompositeNode* topNode,
     m_calculated_vertex_x = vertex_fillbranch.GetX();
     m_calculated_vertex_y = vertex_fillbranch.GetY();
     m_calculated_vertex_z = vertex_fillbranch.GetZ();
-    m_calculated_vertex_v = m_tools->calculateEllipsoidVolume(vertex_fillbranch);
+    m_calculated_vertex_v = KFParticle_utilities::calculateEllipsoidVolume(vertex_fillbranch);
     m_calculated_vertex_chi2 = vertex_fillbranch.GetChi2();
     m_calculated_vertex_ndof = vertex_fillbranch.GetNDF();
 
@@ -637,12 +648,12 @@ void KFParticle_nTuple::fillBranch(PHCompositeNode* topNode,
 
   m_sv_mass = calc_secondary_vertex_mass_noPID(daughters);
 
-  m_unsorted.getTracksFromBC(topNode, m_calculated_daughter_bunch_crossing[0], m_config.vertexMapNodeName, m_multiplicity, m_nPVs);
-  m_ncharged_siseed_multiplicity = KFParticle_unsorted::getNchargedSiSeedMultiplicity(topNode, m_calculated_daughter_bunch_crossing[0], m_verbosity_nTuple);
+  getTracksFromBC(topNode, m_calculated_daughter_bunch_crossing[0], m_config.vertexMapNodeName, m_multiplicity, m_nPVs);
+  m_ncharged_siseed_multiplicity = getNchargedSiSeedMultiplicity(topNode, m_calculated_daughter_bunch_crossing[0], m_verbosity_nTuple);
   // cannot retrieve vertex map info from fake PV, hence the second condition
   if (m_config.constrainToPrimaryVertex && !m_use_fake_pv_nTuple)
   {
-    m_nTracksOfVertex = m_unsorted.getTracksFromVertex(topNode, vertex_fillbranch, m_config.vertexMapNodeName);
+    m_nTracksOfVertex = getTracksFromVertex(topNode, vertex_fillbranch, m_config.vertexMapNodeName);
   }
   else
   {
@@ -874,4 +885,137 @@ void KFParticle_nTuple::clearAllPVInfo()
     allPV_intermediates_PV_DCA[i].clear();
     allPV_intermediates_PV_DCA_StdDev[i].clear();
   }
+}
+
+void KFParticle_nTuple::getTracksFromBC(PHCompositeNode *topNode, const int &bunch_crossing, const std::string &vertexMapName, int &nTracks, int &nPVs) const
+{
+  if (m_config.useMbdVertex)  // If you're using the MBD vertex then there is no way to know which tracks are associated to it
+  {
+    return;
+  }
+
+  const std::string &vtxMN = vertexMapName.empty() ? m_config.vertexMapNodeName : vertexMapName;
+
+  nTracks = 0;
+  nPVs = 0;
+  auto *dst_vertexmap = findNode::getClass<SvtxVertexMap>(topNode, vtxMN);
+  for (SvtxVertexMap::ConstIter iter = dst_vertexmap->begin(); iter != dst_vertexmap->end(); ++iter)
+  {
+    SvtxVertex *dst_vertex = iter->second;
+    if ((int) dst_vertex->get_beam_crossing() == bunch_crossing)
+    {
+      nTracks += dst_vertex->size_tracks();
+      ++nPVs;
+    }
+  }
+}
+
+int KFParticle_nTuple::getTracksFromVertex(PHCompositeNode *topNode, const KFParticle &vertex, const std::string &vertexMapName) const
+{
+  if (m_config.useMbdVertex)  // If you're using the MBD vertex then there is no way to know which tracks are associated to it
+  {
+    return 0;
+  }
+
+  const std::string &vtxMN = vertexMapName.empty() ? m_config.vertexMapNodeName : vertexMapName;
+
+  SvtxVertex *associated_vertex = nullptr;
+  if (m_config.dontUseGlobalVertex)
+  {
+    auto *dst_vertexmap = findNode::getClass<SvtxVertexMap>(topNode, vtxMN);
+    associated_vertex = dst_vertexmap ? dst_vertexmap->get(vertex.Id()) : nullptr;
+  }
+  else
+  {
+    auto *dst_globalvertexmap = findNode::getClass<GlobalVertexMap>(topNode, "GlobalVertexMap");
+    auto *dst_vertexmap = findNode::getClass<SvtxVertexMap>(topNode, vtxMN);
+    if (!dst_globalvertexmap || !dst_vertexmap)
+    {
+      std::cout << "Can't continue in KFParticle_Tools::getTracksFromVertex" << std::endl;
+      return 0;
+    }
+    auto *associated_gvertex = dst_globalvertexmap->get(vertex.Id());
+    if (!associated_gvertex)
+    {
+      return 0;
+    }
+
+    auto svtxiter = associated_gvertex->find_vertexes(GlobalVertex::SVTX);
+    if (svtxiter == associated_gvertex->end_vertexes())
+    {
+      return 0;
+    }
+    const auto &svtxvertexvector = svtxiter->second;
+
+    for (const auto &gvertex : svtxvertexvector)
+    {
+      auto vtxiter = dst_vertexmap->find(gvertex->get_id());
+      if (vtxiter != dst_vertexmap->end())
+      {
+        associated_vertex = vtxiter->second;
+      }
+    }
+  }
+  if (associated_vertex)
+  {
+    return associated_vertex->size_tracks();
+  }
+
+  return 0;
+}
+
+int KFParticle_nTuple::getNchargedSiSeedMultiplicity(PHCompositeNode *topNode, const int &bunch_crossing, int verbosity)
+{
+  auto *m_siliconSeeds = findNode::getClass<TrackSeedContainer>(topNode, "SiliconTrackSeedContainer");
+  //auto clustermap = findNode::getClass<TrkrClusterContainer>(topNode, "TRKR_CLUSTER_SEED");
+  if (!m_siliconSeeds)
+  {
+    if (verbosity > 0)
+    {
+      std::cout << PHWHERE << " ERROR: Can't find SiliconTrackSeedContainer " << std::endl;
+    }
+    return -1;
+  }
+  //if (!clustermap)
+  //{
+  //  std::cout << " ERROR: Can't find TRKR_CLUSTER " << std::endl;
+  //  return -1;
+  //}
+
+  TrackSeed *_tracklet_si;
+  int ncharged_multiplicity = 0;
+  const int nMapsCut = 1;
+  const int nInttCut = 1;
+  for (unsigned int phtrk_iter_si = 0;
+         phtrk_iter_si < m_siliconSeeds->size();
+         ++phtrk_iter_si)
+  {
+    _tracklet_si = m_siliconSeeds->get(phtrk_iter_si);
+    if (!_tracklet_si)
+    {
+      continue;
+    }
+    if (_tracklet_si->get_crossing() == bunch_crossing)
+    {
+      if (TrackAnalysisUtils::get_cluster_count(_tracklet_si,TrkrDefs::mvtxId) >= nMapsCut &&
+          TrackAnalysisUtils::get_cluster_count(_tracklet_si,TrkrDefs::inttId) >= nInttCut)
+      {
+        ncharged_multiplicity++;
+      }
+    }
+  }
+
+  return ncharged_multiplicity;
+}
+
+float KFParticle_nTuple::calculateJT(const KFParticle &mother, const KFParticle &daughter)
+{
+  Eigen::Vector3f motherP = Eigen::Vector3f(mother.GetPx(), mother.GetPy(), mother.GetPz());
+  Eigen::Vector3f daughterP = Eigen::Vector3f(daughter.GetPx(), daughter.GetPy(), daughter.GetPz());
+
+  Eigen::Vector3f motherP_X_daughterP = motherP.cross(daughterP);
+
+  float jT = (motherP_X_daughterP.norm()) / motherP.norm();
+
+  return jT;
 }
