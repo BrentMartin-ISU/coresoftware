@@ -13,7 +13,6 @@
 #include <vector>
 
 class KFParticle;
-class KFParticle_Tools;
 class PHCompositeNode;
 class RawClusterContainer;
 class RawTowerContainer;
@@ -35,8 +34,6 @@ class KFParticle_caloInfo
   void fill(PHCompositeNode *topNode, const KFParticle &daughter, int daughter_id, bool &isTrackEMCalmatch, const KFParticle &vertex_in);
   void clear(int nTracks);
 
-  void setToolsInstance(const KFParticle_Tools *tools) { m_tools = tools; }
-
  private:
   void Get5x5CellInfo(
     RawClusterDefs::keytype key_in,
@@ -53,9 +50,6 @@ class KFParticle_caloInfo
   static constexpr int max_tracks{KFParticle_utilities::max_tracks};
 
   const KFParticle_Config &m_config;
-
-  // Owned by KFParticle_sPHENIX; holds the track map node name
-  const KFParticle_Tools *m_tools{nullptr};
 
   // Only used by the commented-out IHCal/OHCal matching
   float m_ihcal_radius_user{117};

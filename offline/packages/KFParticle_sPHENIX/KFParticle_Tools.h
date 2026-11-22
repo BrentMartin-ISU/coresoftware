@@ -144,14 +144,6 @@ class KFParticle_Tools
 
   static TrackSeed *findSeed(TrackSeedContainer *container, unsigned short id);
 
-  // Read-only access to the settings that the nTuple/truth helper classes need.
-  // The helpers use the one KFParticle_Tools instance that owns the settings (see
-  // KFParticle_nTuple::setToolsInstance) rather than keeping their own copies.
-  bool get_use_mbd_vertex() const { return m_use_mbd_vertex; }
-  bool get_dont_use_global_vertex() const { return m_dont_use_global_vertex; }
-  const std::string &get_vtx_map_node_name() const { return m_vtx_map_node_name; }
-  const std::string &get_trk_map_node_name() const { return m_trk_map_node_name; }
-
  protected:
   int m_verbosity = 0;
 
@@ -288,10 +280,6 @@ class KFParticle_Tools
 
   bool m_use_fake_pv{false};
 
-  bool m_use_mbd_vertex{false};
-
-  bool m_dont_use_global_vertex{false};
-
   bool m_force_mixed_event = false;
 
   bool m_require_bunch_crossing_match{true};
@@ -304,8 +292,6 @@ class KFParticle_Tools
 
   int m_next_intermediate_id{-2};
 
-  std::string m_vtx_map_node_name;
-  std::string m_trk_map_node_name;
   GlobalVertexMap *m_dst_globalvertexmap{nullptr};
   GlobalVertex *m_dst_globalvertex{nullptr};
   MbdVertexMap *m_dst_mbdvertexmap{nullptr};

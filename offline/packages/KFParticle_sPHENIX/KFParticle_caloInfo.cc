@@ -1,5 +1,4 @@
 #include "KFParticle_caloInfo.h"
-#include "KFParticle_Tools.h"  // for KFParticle_Tools
 #include "KFParticle_utilities.h"
 
 #include <trackbase_historic/SvtxTrack.h>     // for SvtxTrack, SvtxTrack::...
@@ -82,10 +81,10 @@ void KFParticle_caloInfo::fill(PHCompositeNode *topNode, const KFParticle &daugh
 {
 
   // Get track map
-  auto *dst_trackmap = findNode::getClass<SvtxTrackMap>(topNode, m_tools->get_trk_map_node_name());
+  auto *dst_trackmap = findNode::getClass<SvtxTrackMap>(topNode, m_config.trackMapNodeName);
   if (!dst_trackmap)
   {
-    std::cout << "KFParticle truth matching: " << m_tools->get_trk_map_node_name() << " does not exist" << std::endl;
+    std::cout << "KFParticle truth matching: " << m_config.trackMapNodeName << " does not exist" << std::endl;
     gSystem->Exit(1);
     exit(1);
   }

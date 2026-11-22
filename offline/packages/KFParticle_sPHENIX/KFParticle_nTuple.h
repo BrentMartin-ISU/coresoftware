@@ -27,6 +27,7 @@ class KFParticle_nTuple
   explicit KFParticle_nTuple(const KFParticle_Config &config)
     : m_config(config)
     , m_detector(config)
+    , m_truth(config)
     , m_calo(config)
   {
   }
@@ -58,19 +59,12 @@ class KFParticle_nTuple
 
   bool fillConditionMet() const;
 
-  /// Passes the single KFParticle_Tools instance to every helper that reads its settings
-  void setToolsInstance(KFParticle_Tools *tools)
-  {
-    m_tools = tools;
-    m_detector.setToolsInstance(tools);
-    m_truth.setToolsInstance(tools);
-    m_calo.setToolsInstance(tools);
-  }
+  /// Set by KFParticle_sPHENIX to itself, for the calculations and node caches that still live in KFParticle_Tools
+  void setToolsInstance(KFParticle_Tools *tools) { m_tools = tools; }
 
  protected:
   bool m_extrapolateTracksToSV_nTuple{true};
   bool isTrackEMCalmatch{true};
-  // std::string m_vtx_map_node_name_nTuple;
   bool m_use_fake_pv_nTuple{false};
   std::string m_qa_tree_path{"DecayTree"};  // name (optionally dir/name) of the tree in the QA histogram manager
   int m_verbosity_nTuple{0};
@@ -80,9 +74,8 @@ class KFParticle_nTuple
 
   const KFParticle_Config &m_config;
 
-  // The single KFParticle_Tools instance that holds the user's settings (vertex/track map names,
-  // MBD vs SVTX vertex, global vertex use, ...). Set once by KFParticle_sPHENIX so that this class
-  // and its helpers never work from a second, default-configured copy.
+  // The KFParticle_sPHENIX object itself (see setToolsInstance). Non-const because getTracksFromBC
+  // and makeAllPrimaryVertices update its per-event node pointers.
   KFParticle_Tools *m_tools{nullptr};
 
   KFParticle_detectorInfo m_detector;

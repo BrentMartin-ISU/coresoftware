@@ -100,10 +100,10 @@ void KFParticle_detectorInfo::initializeSubDetectorBranches(TTree *m_tree, const
 
 void KFParticle_detectorInfo::fill(PHCompositeNode *topNode, const KFParticle &daughter, int daughter_id)
 {
-  auto *dst_trackmap = findNode::getClass<SvtxTrackMap>(topNode, m_tools->get_trk_map_node_name());
+  auto *dst_trackmap = findNode::getClass<SvtxTrackMap>(topNode, m_config.trackMapNodeName);
   if (!dst_trackmap)
   {
-    std::cout << "KFParticle truth matching: " << m_tools->get_trk_map_node_name() << " does not exist" << std::endl;
+    std::cout << "KFParticle truth matching: " << m_config.trackMapNodeName << " does not exist" << std::endl;
   }
 
   std::string geoName = "ActsGeometry";

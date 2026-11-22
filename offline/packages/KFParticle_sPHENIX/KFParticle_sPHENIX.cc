@@ -191,7 +191,7 @@ int KFParticle_sPHENIX::process_event(PHCompositeNode *topNode)
   }
   // End BCO matching here
 
-  SvtxTrackMap *check_trackmap = findNode::getClass<SvtxTrackMap>(topNode, m_trk_map_node_name);
+  SvtxTrackMap *check_trackmap = findNode::getClass<SvtxTrackMap>(topNode, m_config.trackMapNodeName);
 
   if (!check_trackmap || check_trackmap->empty())
   {
@@ -205,9 +205,9 @@ int KFParticle_sPHENIX::process_event(PHCompositeNode *topNode)
 
   if (!m_use_fake_pv)
   {
-    const bool noVertices = m_use_mbd_vertex
+    const bool noVertices = m_config.useMbdVertex
                                 ? findNode::getClass<MbdVertexMap>(topNode, "MbdVertexMap")->empty()
-                                : findNode::getClass<SvtxVertexMap>(topNode, m_vtx_map_node_name)->empty();
+                                : findNode::getClass<SvtxVertexMap>(topNode, m_config.vertexMapNodeName)->empty();
     if (noVertices)
     {
       if (Verbosity() >= VERBOSITY_SOME)

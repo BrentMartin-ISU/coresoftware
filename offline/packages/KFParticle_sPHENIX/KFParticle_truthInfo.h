@@ -1,6 +1,7 @@
 #ifndef KFPARTICLESPHENIX_KFPARTICLETRUTHINFO_H
 #define KFPARTICLESPHENIX_KFPARTICLETRUTHINFO_H
 
+#include "KFParticle_Config.h"
 #include "KFParticle_utilities.h"
 
 #include <limits>
@@ -10,7 +11,6 @@
 class GlobalVertex;
 class GlobalVertexMap;
 class KFParticle;
-class KFParticle_Tools;
 class MbdVertexMap;
 class PHCompositeNode;
 class PHG4Particle;
@@ -35,12 +35,16 @@ namespace HepMC
 class KFParticle_truthInfo
 {
  public:
+  // Binds the configuration only; it is not read until the branches are filled
+  explicit KFParticle_truthInfo(const KFParticle_Config &config)
+    : m_config(config)
+  {
+  }
+
   void initializeBranches(TTree *m_tree, int daughter_id, const std::string &daughter_number, bool m_constrain_to_vertex_truthMatch);
   void fill(PHCompositeNode *topNode, const KFParticle &daughter, int daughter_id, const KFParticle &kfvertex, bool m_constrain_to_vertex_truthMatch);
   int getHepMCInfo(PHCompositeNode *topNode, const KFParticle &daughter, int daughter_id);
   void clear(int nTracks);
-
-  void setToolsInstance(const KFParticle_Tools *tools) { m_tools = tools; }
 
  private:
   static GlobalVertex *getVertex(unsigned int vertex_id, GlobalVertexMap *vertexmap);
@@ -50,8 +54,7 @@ class KFParticle_truthInfo
 
   static constexpr int max_tracks{KFParticle_utilities::max_tracks};
 
-  // Owned by KFParticle_sPHENIX; holds the track/vertex map names and the MBD vertex choice
-  const KFParticle_Tools *m_tools{nullptr};
+  const KFParticle_Config &m_config;
 
   SvtxEvalStack *m_svtx_evalstack{nullptr};
   SvtxTrackEval *trackeval{nullptr};

@@ -521,7 +521,7 @@ void KFParticle_nTuple::fillBranch(PHCompositeNode* topNode,
     }
 
     // Now get bunch crossing number for the daughter particle
-    SvtxTrackMap* thisTrackMap = findNode::getClass<SvtxTrackMap>(topNode, m_tools->get_trk_map_node_name());
+    SvtxTrackMap* thisTrackMap = findNode::getClass<SvtxTrackMap>(topNode, m_config.trackMapNodeName);
     SvtxTrack* thisTrack = KFParticle_utilities::getTrack(daughterArray[i].Id(), thisTrackMap);
     m_calculated_daughter_bunch_crossing[i] = thisTrack->get_crossing();
     if (m_calculated_daughter_bunch_crossing[i] != 0)
@@ -626,8 +626,8 @@ void KFParticle_nTuple::fillBranch(PHCompositeNode* topNode,
 
     // it only makes sense to calculate PVID for non-fake vertex
     // (this otherwise crashes if m_use_fake_pv_nTuple is true in an event with no real vertices)
-    m_calculated_vertex_ID = m_use_fake_pv_nTuple ? -100 : KFParticle_utilities::getPVID(topNode, vertex_fillbranch, m_tools->get_dont_use_global_vertex(),
-                                                                                          m_tools->get_use_mbd_vertex(), m_tools->get_vtx_map_node_name());  // -100 is the error value returned by getPVID
+    m_calculated_vertex_ID = m_use_fake_pv_nTuple ? -100 : KFParticle_utilities::getPVID(topNode, vertex_fillbranch, m_config.dontUseGlobalVertex,
+                                                                                          m_config.useMbdVertex, m_config.vertexMapNodeName);  // -100 is the error value returned by getPVID
     // m_calculated_vertex_cov          = &vertex_fillbranch.CovarianceMatrix()[0];
     for (int j = 0; j < 6; ++j)
     {
@@ -637,12 +637,12 @@ void KFParticle_nTuple::fillBranch(PHCompositeNode* topNode,
 
   m_sv_mass = calc_secondary_vertex_mass_noPID(daughters);
 
-  m_tools->getTracksFromBC(topNode, m_calculated_daughter_bunch_crossing[0], m_tools->get_vtx_map_node_name(), m_multiplicity, m_nPVs);
+  m_tools->getTracksFromBC(topNode, m_calculated_daughter_bunch_crossing[0], m_config.vertexMapNodeName, m_multiplicity, m_nPVs);
   m_ncharged_siseed_multiplicity = m_tools->getNchargedSiSeedMultiplicity(topNode, m_calculated_daughter_bunch_crossing[0]);
   // cannot retrieve vertex map info from fake PV, hence the second condition
   if (m_config.constrainToPrimaryVertex && !m_use_fake_pv_nTuple)
   {
-    m_nTracksOfVertex = m_tools->getTracksFromVertex(topNode, vertex_fillbranch, m_tools->get_vtx_map_node_name());
+    m_nTracksOfVertex = m_tools->getTracksFromVertex(topNode, vertex_fillbranch, m_config.vertexMapNodeName);
   }
   else
   {
@@ -829,7 +829,7 @@ void KFParticle_nTuple::allPVInfo(PHCompositeNode *topNode,
                                   std::vector<KFParticle> daughters,
                                   std::vector<KFParticle> intermediates)
 {
-  std::vector<KFParticle> primaryVertices = m_tools->makeAllPrimaryVertices(topNode, m_tools->get_vtx_map_node_name());
+  std::vector<KFParticle> primaryVertices = m_tools->makeAllPrimaryVertices(topNode, m_config.vertexMapNodeName);
 
   for (auto &primaryVertice : primaryVertices)
   {

@@ -1,5 +1,4 @@
 #include "KFParticle_truthInfo.h"
-#include "KFParticle_Tools.h"  // for KFParticle_Tools
 #include "KFParticle_utilities.h"
 
 #include <g4eval/SvtxEvalStack.h>   // for SvtxEvalStack
@@ -140,13 +139,13 @@ void KFParticle_truthInfo::fill(PHCompositeNode *topNode, const KFParticle &daug
   float true_p;
   float true_pt;
 
-  auto *dst_trackmap = findNode::getClass<SvtxTrackMap>(topNode, m_tools->get_trk_map_node_name());
+  auto *dst_trackmap = findNode::getClass<SvtxTrackMap>(topNode, m_config.trackMapNodeName);
   if (!dst_trackmap)
   {
-    std::cout << "KFParticle truth matching: " << m_tools->get_trk_map_node_name() << " does not exist" << std::endl;
+    std::cout << "KFParticle truth matching: " << m_config.trackMapNodeName << " does not exist" << std::endl;
   }
 
-  if (m_tools->get_use_mbd_vertex())
+  if (m_config.useMbdVertex)
   {
     dst_mbdvertexmap = findNode::getClass<MbdVertexMap>(topNode, "MbdVertexMap");
     if (!dst_mbdvertexmap)
@@ -156,10 +155,10 @@ void KFParticle_truthInfo::fill(PHCompositeNode *topNode, const KFParticle &daug
   }
   else
   {
-    dst_vertexmap = findNode::getClass<SvtxVertexMap>(topNode, m_tools->get_vtx_map_node_name());
+    dst_vertexmap = findNode::getClass<SvtxVertexMap>(topNode, m_config.vertexMapNodeName);
     if (!dst_vertexmap)
     {
-      std::cout << "KFParticle truth matching: " << m_tools->get_vtx_map_node_name() << " does not exist" << std::endl;
+      std::cout << "KFParticle truth matching: " << m_config.vertexMapNodeName << " does not exist" << std::endl;
     }
   }
 
@@ -211,13 +210,13 @@ void KFParticle_truthInfo::fill(PHCompositeNode *topNode, const KFParticle &daug
   {
     // Calculate true DCA
     GlobalVertex *recoVertex = getVertex(kfvertex.Id(), globalvertexmap);
-    GlobalVertex::VTXTYPE whichVtx = m_tools->get_use_mbd_vertex() ? GlobalVertex::MBD : GlobalVertex::SVTX;
+    GlobalVertex::VTXTYPE whichVtx = m_config.useMbdVertex ? GlobalVertex::MBD : GlobalVertex::SVTX;
     auto svtxviter = recoVertex->find_vertexes(whichVtx);
 
     // check that it contains a track vertex
     if (svtxviter == recoVertex->end_vertexes())
     {
-      std::string vtxType = m_tools->get_use_mbd_vertex() ? "MBD" : "silicon";
+      std::string vtxType = m_config.useMbdVertex ? "MBD" : "silicon";
       std::cout << "Have a global vertex with no " << vtxType << " vertex... shouldn't happen in KFParticle_truthInfo::fill..." << std::endl;
     }
 
@@ -227,7 +226,7 @@ void KFParticle_truthInfo::fill(PHCompositeNode *topNode, const KFParticle &daug
 
     for (const auto &vertex_iter : svtxvertexvector)
     {
-      if (m_tools->get_use_mbd_vertex())
+      if (m_config.useMbdVertex)
       {
         mbdvertex = dst_mbdvertexmap->find(vertex_iter->get_id())->second;
       }
@@ -238,7 +237,7 @@ void KFParticle_truthInfo::fill(PHCompositeNode *topNode, const KFParticle &daug
     }
 
     PHG4VtxPoint *truePoint = nullptr;
-    if (m_tools->get_use_mbd_vertex())
+    if (m_config.useMbdVertex)
     {
       std::set<PHG4VtxPoint *> truePointSet = vertexeval->all_truth_points(mbdvertex);
       truePoint = *truePointSet.begin();
@@ -348,10 +347,10 @@ int KFParticle_truthInfo::getHepMCInfo(PHCompositeNode *topNode, const KFParticl
   dummyParticle.set_pdg_id(0);
   dummyParticle.set_generated_mass(0.);
 
-  auto *dst_trackmap = findNode::getClass<SvtxTrackMap>(topNode, m_tools->get_trk_map_node_name());
+  auto *dst_trackmap = findNode::getClass<SvtxTrackMap>(topNode, m_config.trackMapNodeName);
   if (!dst_trackmap)
   {
-    std::cout << "KFParticle truth matching: " << m_tools->get_trk_map_node_name() << " does not exist" << std::endl;
+    std::cout << "KFParticle truth matching: " << m_config.trackMapNodeName << " does not exist" << std::endl;
     gSystem->Exit(1);
     exit(1);
   }

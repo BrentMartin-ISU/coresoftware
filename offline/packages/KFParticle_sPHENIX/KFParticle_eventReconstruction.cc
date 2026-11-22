@@ -110,7 +110,7 @@ void KFParticle_eventReconstruction::createDecay(PHCompositeNode* topNode, std::
   }
   else
   {
-    primaryVertices = makeAllPrimaryVertices(topNode, m_vtx_map_node_name);
+    primaryVertices = makeAllPrimaryVertices(topNode, m_config.vertexMapNodeName);
   }
 
   std::vector<KFParticle> daughterParticles = makeAllDaughterParticles(topNode);

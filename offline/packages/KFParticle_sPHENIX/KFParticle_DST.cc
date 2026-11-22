@@ -156,7 +156,7 @@ void KFParticle_DST::fillParticleNode_Track(PHCompositeNode* topNode, KFParticle
     }
   }
 
-  SvtxTrackMap* originalTrackMap = findNode::getClass<SvtxTrackMap>(topNode, m_config.originTrackMapNodeName);
+  SvtxTrackMap* originalTrackMap = findNode::getClass<SvtxTrackMap>(topNode, m_config.trackMapNodeName);
 
   for (const auto& daughter : daughters)
   {

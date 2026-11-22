@@ -126,23 +126,21 @@ KFParticle_Tools::KFParticle_Tools(const KFParticle_Config &config)
   , m_get_charge_conjugate(false)
   , m_extrapolateTracksToSV(true)
   , m_use_fake_pv(false)
-  , m_vtx_map_node_name("SvtxVertexMap")
-  , m_trk_map_node_name("SvtxTrackMap")
   , m_config(config)
 {
 }
 
 KFParticle KFParticle_Tools::makeVertex(PHCompositeNode * /*topNode*/)
 {
-  float vtxX = m_use_mbd_vertex ? 0 : m_dst_vertex->get_x();
-  float vtxY = m_use_mbd_vertex ? 0 : m_dst_vertex->get_y();
-  float vtxZ = m_use_mbd_vertex ? m_dst_mbdvertex->get_z() : m_dst_vertex->get_z();
+  float vtxX = m_config.useMbdVertex ? 0 : m_dst_vertex->get_x();
+  float vtxY = m_config.useMbdVertex ? 0 : m_dst_vertex->get_y();
+  float vtxZ = m_config.useMbdVertex ? m_dst_mbdvertex->get_z() : m_dst_vertex->get_z();
 
   float f_vertexParameters[6] = {vtxX, vtxY, vtxZ, 0, 0, 0};
 
   float f_vertexCovariance[21] = {0};
   unsigned int iterate = 0;
-  if (m_use_mbd_vertex)
+  if (m_config.useMbdVertex)
   {
     f_vertexCovariance[5] = m_dst_mbdvertex->get_z_err();
   }
@@ -160,19 +158,19 @@ KFParticle KFParticle_Tools::makeVertex(PHCompositeNode * /*topNode*/)
 
   KFParticle kfp_vertex;
   kfp_vertex.Create(f_vertexParameters, f_vertexCovariance, 0, -1);
-  kfp_vertex.NDF() = m_use_mbd_vertex ? 0 : m_dst_vertex->get_ndof();
-  kfp_vertex.Chi2() = m_use_mbd_vertex ? 0 : m_dst_vertex->get_chisq();
+  kfp_vertex.NDF() = m_config.useMbdVertex ? 0 : m_dst_vertex->get_ndof();
+  kfp_vertex.Chi2() = m_config.useMbdVertex ? 0 : m_dst_vertex->get_chisq();
 
   return kfp_vertex;
 }
 
 std::vector<KFParticle> KFParticle_Tools::makeAllPrimaryVertices(PHCompositeNode *topNode, const std::string &vertexMapName)
 {
-  const std::string &vtxMN = vertexMapName.empty() ? m_vtx_map_node_name : vertexMapName;
+  const std::string &vtxMN = vertexMapName.empty() ? m_config.vertexMapNodeName : vertexMapName;
 
   std::vector<KFParticle> primaryVertices;
 
-  if (m_use_mbd_vertex)
+  if (m_config.useMbdVertex)
   {
     m_dst_mbdvertexmap = findNode::getClass<MbdVertexMap>(topNode, "MbdVertexMap");
   }
@@ -181,9 +179,9 @@ std::vector<KFParticle> KFParticle_Tools::makeAllPrimaryVertices(PHCompositeNode
     m_dst_vertexmap = findNode::getClass<SvtxVertexMap>(topNode, vtxMN);
   }
 
-  if (m_dont_use_global_vertex)
+  if (m_config.dontUseGlobalVertex)
   {
-    if (m_use_mbd_vertex)
+    if (m_config.useMbdVertex)
     {
       for (MbdVertexMap::ConstIter iter = m_dst_mbdvertexmap->begin(); iter != m_dst_mbdvertexmap->end(); ++iter)
       {
@@ -216,7 +214,7 @@ std::vector<KFParticle> KFParticle_Tools::makeAllPrimaryVertices(PHCompositeNode
   {
     m_dst_globalvertex = iter->second;
 
-    GlobalVertex::VTXTYPE whichVtx = m_use_mbd_vertex ? GlobalVertex::MBD : GlobalVertex::SVTX;
+    GlobalVertex::VTXTYPE whichVtx = m_config.useMbdVertex ? GlobalVertex::MBD : GlobalVertex::SVTX;
 
     auto svtxiter = m_dst_globalvertex->find_vertexes(whichVtx);
     // check that it contains a track vertex
@@ -229,7 +227,7 @@ std::vector<KFParticle> KFParticle_Tools::makeAllPrimaryVertices(PHCompositeNode
 
     for (const auto &vertex : svtxvertexvector)
     {
-      if (m_use_mbd_vertex)
+      if (m_config.useMbdVertex)
       {
         m_dst_mbdvertex = m_dst_mbdvertexmap->find(vertex->get_id())->second;
       }
@@ -279,7 +277,7 @@ KFParticle KFParticle_Tools::makeParticle(PHCompositeNode * /*topNode*/)  /// Re
 std::vector<KFParticle> KFParticle_Tools::makeAllDaughterParticles(PHCompositeNode *topNode)
 {
   std::vector<KFParticle> daughterParticles;
-  m_dst_trackmap = findNode::getClass<SvtxTrackMap>(topNode, m_trk_map_node_name);
+  m_dst_trackmap = findNode::getClass<SvtxTrackMap>(topNode, m_config.trackMapNodeName);
 
   m_intermediate_crossings.clear();
   m_next_intermediate_id = -2;
@@ -392,12 +390,12 @@ std::vector<KFParticle> KFParticle_Tools::makeAllDaughterParticles(PHCompositeNo
 
 void KFParticle_Tools::getTracksFromBC(PHCompositeNode *topNode, const int &bunch_crossing, const std::string &vertexMapName, int &nTracks, int &nPVs)
 {
-  if (m_use_mbd_vertex)  // If you're using the MBD vertex then there is no way to know which tracks are associated to it
+  if (m_config.useMbdVertex)  // If you're using the MBD vertex then there is no way to know which tracks are associated to it
   {
     return;
   }
 
-  const std::string &vtxMN = vertexMapName.empty() ? m_vtx_map_node_name : vertexMapName;
+  const std::string &vtxMN = vertexMapName.empty() ? m_config.vertexMapNodeName : vertexMapName;
 
   nTracks = 0;
   nPVs = 0;
@@ -415,15 +413,15 @@ void KFParticle_Tools::getTracksFromBC(PHCompositeNode *topNode, const int &bunc
 
 int KFParticle_Tools::getTracksFromVertex(PHCompositeNode *topNode, const KFParticle &vertex, const std::string &vertexMapName)
 {
-  if (m_use_mbd_vertex)  // If you're using the MBD vertex then there is no way to know which tracks are associated to it
+  if (m_config.useMbdVertex)  // If you're using the MBD vertex then there is no way to know which tracks are associated to it
   {
     return 0;
   }
 
-  const std::string &vtxMN = vertexMapName.empty() ? m_vtx_map_node_name : vertexMapName;
+  const std::string &vtxMN = vertexMapName.empty() ? m_config.vertexMapNodeName : vertexMapName;
 
   SvtxVertex *associated_vertex = nullptr;
-  if (m_dont_use_global_vertex)
+  if (m_config.dontUseGlobalVertex)
   {
     m_dst_vertexmap = findNode::getClass<SvtxVertexMap>(topNode, vtxMN);
     associated_vertex = m_dst_vertexmap ? m_dst_vertexmap->get(vertex.Id()) : nullptr;
@@ -1541,7 +1539,7 @@ void KFParticle_Tools::identify(const KFParticle &particle)
 
 float KFParticle_Tools::get_dEdx(PHCompositeNode *topNode, const KFParticle &daughter)
 {
-  m_dst_trackmap = findNode::getClass<SvtxTrackMap>(topNode, m_trk_map_node_name);
+  m_dst_trackmap = findNode::getClass<SvtxTrackMap>(topNode, m_config.trackMapNodeName);
   m_cluster_map = findNode::getClass<TrkrClusterContainer>(topNode, "TRKR_CLUSTER");
   if (!m_cluster_map)
   {
@@ -1660,9 +1658,9 @@ bool KFParticle_Tools::checkTrackAndVertexMatch(KFParticle vDaughters[], int nTr
   float obtained_vertex[3] = {0, 0, std::numeric_limits<float>::lowest()};
   float kfp_vertex[3] = {vertex.GetX(), vertex.GetY(), vertex.GetZ()};
 
-  if (m_dont_use_global_vertex)
+  if (m_config.dontUseGlobalVertex)
   {
-    if (m_use_mbd_vertex)
+    if (m_config.useMbdVertex)
     {
       m_dst_mbdvertex = m_dst_mbdvertexmap->get(vertex.Id());
       if (!m_dst_mbdvertex)
@@ -1699,7 +1697,7 @@ bool KFParticle_Tools::checkTrackAndVertexMatch(KFParticle vDaughters[], int nTr
       return false;
     }
 
-    GlobalVertex::VTXTYPE whichVtx = m_use_mbd_vertex ? GlobalVertex::MBD : GlobalVertex::SVTX;
+    GlobalVertex::VTXTYPE whichVtx = m_config.useMbdVertex ? GlobalVertex::MBD : GlobalVertex::SVTX;
 
     auto svtxiter = m_dst_globalvertex->find_vertexes(whichVtx);
     if (svtxiter == m_dst_globalvertex->end_vertexes())
@@ -1710,7 +1708,7 @@ bool KFParticle_Tools::checkTrackAndVertexMatch(KFParticle vDaughters[], int nTr
 
     for (const auto &gvertex : svtxvertexvector)
     {
-      if (m_use_mbd_vertex)
+      if (m_config.useMbdVertex)
       {
         auto mbditer = m_dst_mbdvertexmap->find(gvertex->get_id());
         if (mbditer == m_dst_mbdvertexmap->end())

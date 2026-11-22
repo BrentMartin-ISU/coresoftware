@@ -244,7 +244,7 @@ class KFParticle_sPHENIX : public SubsysReco, public KFParticle_nTuple, public K
 
   void useMbdVertex(bool use = true)
   {
-    m_use_mbd_vertex = use;
+    m_config.useMbdVertex = use;
   }
 
   void useCentrality(bool use = true)
@@ -252,7 +252,7 @@ class KFParticle_sPHENIX : public SubsysReco, public KFParticle_nTuple, public K
     m_config.useCentrality = use;
   }
 
-  void dontUseGlobalVertex(bool dont = true) { m_dont_use_global_vertex = dont; }
+  void dontUseGlobalVertex(bool dont = true) { m_config.dontUseGlobalVertex = dont; }
 
   void useFakePrimaryVertex(bool use_fake = true)
   {
@@ -474,10 +474,10 @@ class KFParticle_sPHENIX : public SubsysReco, public KFParticle_nTuple, public K
   void setPIDacceptFraction(float frac = 0.2){ m_config.dEdxBandWidth = frac; }
 
   /// Use alternate vertex and track fitters
-  void setVertexMapNodeName(const std::string &vtx_map_node_name) { m_vtx_map_node_name = vtx_map_node_name; }
+  void setVertexMapNodeName(const std::string &vtx_map_node_name) { m_config.vertexMapNodeName = vtx_map_node_name; }
 
   /// Use alternate vertex and track fitters
-  void setTrackMapNodeName(const std::string &trk_map_node_name) { m_trk_map_node_name = m_config.originTrackMapNodeName = trk_map_node_name; }
+  void setTrackMapNodeName(const std::string &trk_map_node_name) { m_config.trackMapNodeName = trk_map_node_name; }
 
   void magFieldFile(const std::string &fname) { m_config.magFieldFile = fname; }
 

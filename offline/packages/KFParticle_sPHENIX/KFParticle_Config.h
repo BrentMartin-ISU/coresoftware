@@ -25,7 +25,6 @@ struct KFParticle_Config
   bool writeTrackContainer = true;
   bool writeParticleContainer = true;
   std::string containerName;
-  std::string originTrackMapNodeName = "SvtxTrackMap";
 
   // PID (dE/dx)
   bool usePID = false;
@@ -49,6 +48,12 @@ struct KFParticle_Config
   bool allPVInfo = false;
   bool useCentrality = false;
   bool dEdxInfo = false;
+
+  // Input nodes and primary vertex source
+  std::string trackMapNodeName = "SvtxTrackMap";  // also the map the DST output copies tracks from
+  std::string vertexMapNodeName = "SvtxVertexMap";
+  bool useMbdVertex = false;         // MBD vertex instead of the silicon (SVTX) vertex
+  bool dontUseGlobalVertex = false;  // read the MBD or SVTX vertex map directly instead of the GlobalVertexMap
 
   // Vertexing and candidate selection
   bool constrainToPrimaryVertex = false;
