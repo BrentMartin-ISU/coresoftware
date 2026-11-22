@@ -12,7 +12,7 @@
 #include "KFParticle_DST.h"
 
 #include "KFParticle_Container.h"
-#include "KFParticle_Tools.h"
+#include "KFParticle_unsorted.h"
 #include "KFParticle_utilities.h"
 
 #include <trackbase_historic/SvtxTrack.h>     // for SvtxTrack
@@ -35,8 +35,6 @@
 #include <iostream>  // for operator<<, endl
 #include <map>       // for map, map<>::mapped_type
 #include <utility>   // for pair
-
-KFParticle_Tools kfpTupleTools_DST;
 
 namespace
 {
@@ -292,7 +290,7 @@ void KFParticle_DST::printNode(PHCompositeNode* topNode)
     for (auto& iter : *particlemap)
     {
       KFParticle* particle = iter.second;
-      kfpTupleTools_DST.identify(*particle);
+      KFParticle_unsorted::identify(*particle);
     }
     std::cout << "--------------------------------------------------------------------------------------------------" << std::endl;
   }

@@ -74,12 +74,6 @@ class KFParticle_Tools
 
   std::vector<KFParticle> makeAllDaughterParticles(PHCompositeNode *topNode);
 
-  void getTracksFromBC(PHCompositeNode *topNode, const int &bunch_crossing, const std::string &vertexMapName, int &nTracks, int &nPVs);
-
-  int getNchargedSiSeedMultiplicity(PHCompositeNode *topNode, const int &bunch_crossing) const;
-
-  int getTracksFromVertex(PHCompositeNode *topNode, const KFParticle &vertex, const std::string &vertexMapName);
-
   /*const*/ bool isGoodTrack(const KFParticle &particle, const std::vector<KFParticle> &primaryVertices);
 
   bool isTPConlyAtZeroCrossing(const KFParticle &track);
@@ -111,15 +105,9 @@ class KFParticle_Tools
 
   std::vector<std::vector<int>> findUniqueDaughterCombinations(int start, int end);
 
-  double calculateEllipsoidRadius(int posOrNeg, double sigma_ii, double sigma_jj, double sigma_ij);
-
   float calculateEllipsoidVolume(const KFParticle &particle);
 
-  float calculateJT(const KFParticle &mother, const KFParticle &daughter);
-
   bool isInRange(float min, float value, float max);
-
-  bool findParticle(const std::string &particle);
 
   int getParticleID(const std::string &particle);
 
@@ -127,8 +115,6 @@ class KFParticle_Tools
 
   float getParticleMass(const std::string &particle);
   float getParticleMass(int PDGID);
-
-  void identify(const KFParticle &particle);
 
   float get_dEdx(PHCompositeNode *topNode, const KFParticle &daughter);
 

@@ -565,7 +565,7 @@ void KFParticle_nTuple::fillBranch(PHCompositeNode* topNode,
     KFVertex intermediateDecayVertex;
     for (int j = 0; j < m_config.numTracksFromIntermediate[k]; ++j)
     {
-      m_calculated_daughter_jt[iter] = m_tools->calculateJT(intermediateArray[k], daughterArray[iter]);
+      m_calculated_daughter_jt[iter] = KFParticle_unsorted::calculateJT(intermediateArray[k], daughterArray[iter]);
       intermediateDecayVertex += daughterArray[iter];
       ++iter;
     }
@@ -575,7 +575,7 @@ void KFParticle_nTuple::fillBranch(PHCompositeNode* topNode,
   }
   for (int k = 0; k < num_remaining_tracks; k++)
   {
-    m_calculated_daughter_jt[iter] = m_tools->calculateJT(motherParticle, daughterArray[iter]);
+    m_calculated_daughter_jt[iter] = KFParticle_unsorted::calculateJT(motherParticle, daughterArray[iter]);
     motherDecayVertex += daughterArray[iter];
     ++iter;
   }
@@ -637,12 +637,12 @@ void KFParticle_nTuple::fillBranch(PHCompositeNode* topNode,
 
   m_sv_mass = calc_secondary_vertex_mass_noPID(daughters);
 
-  m_tools->getTracksFromBC(topNode, m_calculated_daughter_bunch_crossing[0], m_config.vertexMapNodeName, m_multiplicity, m_nPVs);
-  m_ncharged_siseed_multiplicity = m_tools->getNchargedSiSeedMultiplicity(topNode, m_calculated_daughter_bunch_crossing[0]);
+  m_unsorted.getTracksFromBC(topNode, m_calculated_daughter_bunch_crossing[0], m_config.vertexMapNodeName, m_multiplicity, m_nPVs);
+  m_ncharged_siseed_multiplicity = KFParticle_unsorted::getNchargedSiSeedMultiplicity(topNode, m_calculated_daughter_bunch_crossing[0], m_verbosity_nTuple);
   // cannot retrieve vertex map info from fake PV, hence the second condition
   if (m_config.constrainToPrimaryVertex && !m_use_fake_pv_nTuple)
   {
-    m_nTracksOfVertex = m_tools->getTracksFromVertex(topNode, vertex_fillbranch, m_config.vertexMapNodeName);
+    m_nTracksOfVertex = m_unsorted.getTracksFromVertex(topNode, vertex_fillbranch, m_config.vertexMapNodeName);
   }
   else
   {

@@ -77,7 +77,7 @@ class KFParticle_sPHENIX : public SubsysReco, public KFParticle_nTuple, public K
                       const KFParticle &chosenVertex,
                       const std::vector<KFParticle> &daughterParticles,
                       const std::vector<KFParticle> &intermediateParticles,
-                      int numPVs, int numTracks);
+                      int numPVs, int numTracks) const;
 
   int parseDecayDescriptor();
 

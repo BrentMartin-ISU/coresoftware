@@ -6,6 +6,7 @@
 #include "KFParticle_detectorInfo.h"
 #include "KFParticle_triggerInfo.h"
 #include "KFParticle_truthInfo.h"
+#include "KFParticle_unsorted.h"
 #include "KFParticle_utilities.h"
 
 #include <KFParticle.h>
@@ -29,6 +30,7 @@ class KFParticle_nTuple
     , m_detector(config)
     , m_truth(config)
     , m_calo(config)
+    , m_unsorted(config)
   {
   }
 
@@ -74,14 +76,15 @@ class KFParticle_nTuple
 
   const KFParticle_Config &m_config;
 
-  // The KFParticle_sPHENIX object itself (see setToolsInstance). Non-const because getTracksFromBC
-  // and makeAllPrimaryVertices update its per-event node pointers.
+  // The KFParticle_sPHENIX object itself (see setToolsInstance). Non-const because makeAllPrimaryVertices
+  // and get_dEdx update its per-event node pointers.
   KFParticle_Tools *m_tools{nullptr};
 
   KFParticle_detectorInfo m_detector;
   KFParticle_truthInfo m_truth;
   KFParticle_caloInfo m_calo;
   KFParticle_triggerInfo m_trigger;
+  KFParticle_unsorted m_unsorted;  // temporary, see KFParticle_unsorted.h
 
   // This fills a reduced output meant for the ML momentum calibration
   // It contains mother mass/pT/eta/phi/PID, daughter pT/pTErr/eta/phi/charge/PID/covariance and runNumber only

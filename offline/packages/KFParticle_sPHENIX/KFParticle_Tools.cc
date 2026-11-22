@@ -65,8 +65,6 @@
 #include <TMatrixDfwd.h>  // for TMatrixD
 #include <TMatrixT.h>     // for TMatrixT, operator*
 
-#include <Eigen/Dense>
-
 #include <algorithm>  // for max, remove, minmax_el...
 #include <cmath>      // for sqrt, pow, M_PI
 #include <cstdlib>    // for abs, NULL
@@ -386,83 +384,6 @@ std::vector<KFParticle> KFParticle_Tools::makeAllDaughterParticles(PHCompositeNo
   }
 
   return daughterParticles;
-}
-
-void KFParticle_Tools::getTracksFromBC(PHCompositeNode *topNode, const int &bunch_crossing, const std::string &vertexMapName, int &nTracks, int &nPVs)
-{
-  if (m_config.useMbdVertex)  // If you're using the MBD vertex then there is no way to know which tracks are associated to it
-  {
-    return;
-  }
-
-  const std::string &vtxMN = vertexMapName.empty() ? m_config.vertexMapNodeName : vertexMapName;
-
-  nTracks = 0;
-  nPVs = 0;
-  m_dst_vertexmap = findNode::getClass<SvtxVertexMap>(topNode, vtxMN);
-  for (SvtxVertexMap::ConstIter iter = m_dst_vertexmap->begin(); iter != m_dst_vertexmap->end(); ++iter)
-  {
-    m_dst_vertex = iter->second;
-    if ((int) m_dst_vertex->get_beam_crossing() == bunch_crossing)
-    {
-      nTracks += m_dst_vertex->size_tracks();
-      ++nPVs;
-    }
-  }
-}
-
-int KFParticle_Tools::getTracksFromVertex(PHCompositeNode *topNode, const KFParticle &vertex, const std::string &vertexMapName)
-{
-  if (m_config.useMbdVertex)  // If you're using the MBD vertex then there is no way to know which tracks are associated to it
-  {
-    return 0;
-  }
-
-  const std::string &vtxMN = vertexMapName.empty() ? m_config.vertexMapNodeName : vertexMapName;
-
-  SvtxVertex *associated_vertex = nullptr;
-  if (m_config.dontUseGlobalVertex)
-  {
-    m_dst_vertexmap = findNode::getClass<SvtxVertexMap>(topNode, vtxMN);
-    associated_vertex = m_dst_vertexmap ? m_dst_vertexmap->get(vertex.Id()) : nullptr;
-  }
-  else
-  {
-    m_dst_globalvertexmap = findNode::getClass<GlobalVertexMap>(topNode, "GlobalVertexMap");
-    m_dst_vertexmap = findNode::getClass<SvtxVertexMap>(topNode, vtxMN);
-    if (!m_dst_globalvertexmap || !m_dst_vertexmap)
-    {
-      std::cout << "Can't continue in KFParticle_Tools::getTracksFromVertex" << std::endl;
-      return 0;
-    }
-    auto *associated_gvertex = m_dst_globalvertexmap->get(vertex.Id());
-    if (!associated_gvertex)
-    {
-      return 0;
-    }
-
-    auto svtxiter = associated_gvertex->find_vertexes(GlobalVertex::SVTX);
-    if (svtxiter == associated_gvertex->end_vertexes())
-    {
-      return 0;
-    }
-    const auto &svtxvertexvector = svtxiter->second;
-
-    for (const auto &gvertex : svtxvertexvector)
-    {
-      auto vtxiter = m_dst_vertexmap->find(gvertex->get_id());
-      if (vtxiter != m_dst_vertexmap->end())
-      {
-        associated_vertex = vtxiter->second;
-      }
-    }
-  }
-  if (associated_vertex)
-  {
-    return associated_vertex->size_tracks();
-  }
-
-  return 0;
 }
 
 /*const*/ bool KFParticle_Tools::isGoodTrack(const KFParticle &particle, const std::vector<KFParticle> &primaryVertices)
@@ -1315,19 +1236,6 @@ std::vector<std::vector<int>> KFParticle_Tools::findUniqueDaughterCombinations(i
   return uniqueCombinations;
 }
 
-double KFParticle_Tools::calculateEllipsoidRadius(int posOrNeg, double sigma_ii, double sigma_jj, double sigma_ij)
-{  // Note - Only works for a 2D ellipsoid OR rotated nD ellipsoid to avoid projections
-  if (std::abs(posOrNeg) != 1)
-  {
-    std::cout << "You have set posOrNeg to " << posOrNeg << ". This value must be  +/- 1! Skipping" << std::endl;
-    return 0;
-  }
-
-  double r_ij = sqrt((sigma_ii + sigma_jj) / 2 + posOrNeg * (sqrt(pow((sigma_ii - sigma_jj) / 2, 2) + pow(sigma_ij, 2))));
-
-  return r_ij;
-}
-
 float KFParticle_Tools::calculateEllipsoidVolume(const KFParticle &particle)
 {
   TMatrixD cov_matrix(3, 3);
@@ -1351,18 +1259,6 @@ float KFParticle_Tools::calculateEllipsoidVolume(const KFParticle &particle)
   }
 
   return volume;
-}
-
-float KFParticle_Tools::calculateJT(const KFParticle &mother, const KFParticle &daughter)
-{
-  Eigen::Vector3f motherP = Eigen::Vector3f(mother.GetPx(), mother.GetPy(), mother.GetPz());
-  Eigen::Vector3f daughterP = Eigen::Vector3f(daughter.GetPx(), daughter.GetPy(), daughter.GetPz());
-
-  Eigen::Vector3f motherP_X_daughterP = motherP.cross(daughterP);
-
-  float jT = (motherP_X_daughterP.norm()) / motherP.norm();
-
-  return jT;
 }
 
 bool KFParticle_Tools::isInRange(float min, float value, float max)
@@ -1443,19 +1339,6 @@ void KFParticle_Tools::removeDuplicates(std::vector<std::vector<std::string>> &v
   removeDuplicatesKeepOrder(v);
 }
 
-bool KFParticle_Tools::findParticle(const std::string &particle)
-{
-  bool particleFound = true;
-  if (!TDatabasePDG::Instance()->GetParticle(particle.c_str()))
-  {
-    std::cout << "The particle, " << particle << " is not recognized" << std::endl;
-    std::cout << "Check TDatabasePDG for a list of available particles" << std::endl;
-    particleFound = false;
-  }
-
-  return particleFound;
-}
-
 int KFParticle_Tools::getParticleID(const std::string &particle)
 {
   return TDatabasePDG::Instance()->GetParticle(particle.c_str())->PdgCode();
@@ -1523,18 +1406,6 @@ float KFParticle_Tools::getParticleMass(const std::string &particle)
 float KFParticle_Tools::getParticleMass(const int PDGID)
 {
   return TDatabasePDG::Instance()->GetParticle(PDGID)->Mass();
-}
-
-void KFParticle_Tools::identify(const KFParticle &particle)
-{
-  std::cout << "Track ID: " << particle.Id() << std::endl;
-  std::cout << "PDG ID: " << particle.GetPDG() << ", charge: " << (int) particle.GetQ() << ", mass: " << particle.GetMass() << " GeV" << std::endl;
-  std::cout << "(px,py,pz) = (" << particle.GetPx() << " +/- " << std::sqrt(particle.GetCovariance(3, 3)) << ", ";
-  std::cout << particle.GetPy() << " +/- " << std::sqrt(particle.GetCovariance(4, 4)) << ", ";
-  std::cout << particle.GetPz() << " +/- " << std::sqrt(particle.GetCovariance(5, 5)) << ") GeV" << std::endl;
-  std::cout << "(x,y,z) = (" << particle.GetX() << " +/- " << std::sqrt(particle.GetCovariance(0, 0)) << ", ";
-  std::cout << particle.GetY() << " +/- " << std::sqrt(particle.GetCovariance(1, 1)) << ", ";
-  std::cout << particle.GetZ() << " +/- " << std::sqrt(particle.GetCovariance(2, 2)) << ") cm\n" << std::endl;
 }
 
 float KFParticle_Tools::get_dEdx(PHCompositeNode *topNode, const KFParticle &daughter)
@@ -1775,50 +1646,6 @@ void KFParticle_Tools::printSelectionCheck(const std::string &info, unsigned int
 {
   std::string colour = value > 0 ? accept_colour : reject_colour;
   std::cout << info << " = \033[1;" << colour << "m" << value << "\033[0m" << std::endl;
-}
-
-int KFParticle_Tools::getNchargedSiSeedMultiplicity(PHCompositeNode *topNode, const int &bunch_crossing) const
-{
-  auto *m_siliconSeeds = findNode::getClass<TrackSeedContainer>(topNode, "SiliconTrackSeedContainer");
-  //auto clustermap = findNode::getClass<TrkrClusterContainer>(topNode, "TRKR_CLUSTER_SEED");
-  if (!m_siliconSeeds)
-  {
-    if (m_verbosity > 0)
-    {
-      std::cout << PHWHERE << " ERROR: Can't find SiliconTrackSeedContainer " << std::endl;
-    }
-    return -1;
-  }
-  //if (!clustermap)
-  //{
-  //  std::cout << " ERROR: Can't find TRKR_CLUSTER " << std::endl;
-  //  return -1;
-  //}
-
-  TrackSeed *_tracklet_si;
-  int ncharged_multiplicity = 0;
-  const int nMapsCut = 1;  
-  const int nInttCut = 1;  
-  for (unsigned int phtrk_iter_si = 0;
-         phtrk_iter_si < m_siliconSeeds->size();
-         ++phtrk_iter_si)
-  {
-    _tracklet_si = m_siliconSeeds->get(phtrk_iter_si);
-    if (!_tracklet_si)
-    {
-      continue;
-    }
-    if (_tracklet_si->get_crossing() == bunch_crossing)
-    {
-      if (TrackAnalysisUtils::get_cluster_count(_tracklet_si,TrkrDefs::mvtxId) >= nMapsCut && 
-          TrackAnalysisUtils::get_cluster_count(_tracklet_si,TrkrDefs::inttId) >= nInttCut)
-      {
-        ncharged_multiplicity++;
-      }
-    }
-  }
-  
-  return ncharged_multiplicity;
 }
 
 //Taken from PHTrackCleaner.cc but this was declared private there

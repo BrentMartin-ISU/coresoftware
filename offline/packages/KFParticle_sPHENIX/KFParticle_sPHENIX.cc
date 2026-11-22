@@ -284,26 +284,26 @@ void KFParticle_sPHENIX::printParticles(const KFParticle &motherParticle,
                                         const KFParticle &chosenVertex,
                                         const std::vector<KFParticle> &daughterParticles,
                                         const std::vector<KFParticle> &intermediateParticles,
-                                        const int numPVs, const int numTracks)
+                                        const int numPVs, const int numTracks) const
 {
   std::cout << "\n---------------KFParticle candidate information---------------" << std::endl;
 
   std::cout << "Mother information:" << std::endl;
-  identify(motherParticle);
+  KFParticle_unsorted::identify(motherParticle);
 
   if (m_config.hasIntermediates)
   {
     std::cout << "Intermediate state information:" << std::endl;
     for (const auto &intermediateParticle : intermediateParticles)
     {
-      identify(intermediateParticle);
+      KFParticle_unsorted::identify(intermediateParticle);
     }
   }
 
   std::cout << "Final track information:" << std::endl;
   for (const auto &daughterParticle : daughterParticles)
   {
-    identify(daughterParticle);
+    KFParticle_unsorted::identify(daughterParticle);
   }
 
   if (m_config.constrainToPrimaryVertex)
@@ -371,7 +371,7 @@ int KFParticle_sPHENIX::parseDecayDescriptor()
   // Find the initial particle
   size_t findMotherEndPoint = manipulateDecayDescriptor.find(decayArrow);
   mother = manipulateDecayDescriptor.substr(0, findMotherEndPoint);
-  bool ddCanBeParsed = findParticle(mother);
+  bool ddCanBeParsed = KFParticle_unsorted::findParticle(mother);
   manipulateDecayDescriptor.erase(0, findMotherEndPoint + decayArrow.length());
 
   // Consume every "name^charge" daughter in decay, filling daughters_name/daughters_charge; returns how many were read
@@ -387,7 +387,7 @@ int KFParticle_sPHENIX::parseDecayDescriptor()
       {
         daughter += daughterChargeString;
       }
-      if (findParticle(daughter))
+      if (KFParticle_unsorted::findParticle(daughter))
       {
         daughters_name.emplace_back(daughter.c_str());
         auto charge = chargeLookup.find(daughterChargeString);
@@ -422,7 +422,7 @@ int KFParticle_sPHENIX::parseDecayDescriptor()
     std::string intermediateDecay = manipulateDecayDescriptor.substr(pos + 1, findIntermediateEndPoint - (pos + 1));
 
     intermediate = intermediateDecay.substr(0, intermediateDecay.find(decayArrow));
-    if (findParticle(intermediate))
+    if (KFParticle_unsorted::findParticle(intermediate))
     {
       intermediates_name.emplace_back(intermediate.c_str());
     }
